@@ -1,5 +1,9 @@
 package dev.mccue.color;
 
+@ColorSpace(
+        names = {
+                "CIE-LUV"
+        }, references = {})
 public record Luv(
         double L,
         double u,

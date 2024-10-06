@@ -1,9 +1,12 @@
 package dev.mccue.color;
 
+import javax.sound.sampled.Line;
+import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
+import java.util.random.RandomGenerator;
 
 /// A color.
 ///
@@ -19,12 +22,6 @@ import java.util.function.Predicate;
 /// these values is in sRGB (standard RGB). This maps to common
 /// displays which display colors by powering separate Red, Green, and Blue
 /// lights in specific proportions.
-///
-/// This representation can be transformed (or recovered in the case of sRGB)
-/// by using the {@link Color#fromComponents(ColorSpace, Object)} method
-/// in conjunction with a {@link ColorSpace}. For known color spaces
-/// this - as well as the inverse of {@link Color#toComponents(ColorSpace)} -
-/// are also available via convenience methods.
 ///
 /// @apiNote This class does not validate or clamp values so that they
 /// are in the 0-1 range that sRGB wants. This is to make it more practical
@@ -44,35 +41,18 @@ public final class Color {
         this.b = b;
     }
 
-    /// Convert this color to a {@link ColorSpace} and recover the components of
-    /// that representation.
-    ///
-    /// @param colorSpace   The color space to convert to.
-    /// @param <Components> The type for the components of colors in that space.
-    /// @return The components for the color.
-    public <Components> Components toComponents(ColorSpace<Components> colorSpace) {
-        return colorSpace.fromColor(this);
-    }
-
-    /// Construct a color given the proper components and a {@link ColorSpace}.
-    ///
-    /// @param colorSpace   The color space
-    /// @param components   The components for the color.
-    /// @param <Components> The type for the components of colors in that space.
-    public static <Components> Color fromComponents(ColorSpace<Components> colorSpace, Components components) {
-        return colorSpace.toColor(components);
-    }
-
     public static Color sRGB(double r, double g, double b) {
         return sRGB(new sRGB(r, g, b));
     }
 
     public static Color sRGB(sRGB sRGB) {
-        return fromComponents(ColorSpace.sRGB(), sRGB);
+        return new Color(sRGB.R(), sRGB.G(), sRGB.B());
     }
 
     public sRGB sRGB() {
-        return toComponents(ColorSpace.sRGB());
+        var c = this;
+        c = c.clamped();
+        return new sRGB(c.r, c.g, c.b);
     }
 
     public static Color HSL(double h, double s, double l) {
@@ -80,67 +60,360 @@ public final class Color {
     }
 
     public static Color HSL(HSL hsl) {
-        return fromComponents(ColorSpace.HSL(), hsl);
+
+        double h = hsl.H();
+        double s = hsl.S();
+        double l = hsl.L();
+
+        if (s == 0) {
+            return new Color(l, l, l);
+        }
+
+        double r;
+        double g;
+        double b;
+
+        double t1;
+        double t2;
+        double tr;
+        double tg;
+        double tb;
+
+        if (l < 0.5) {
+            t1 = l * (1.0 + s);
+        } else {
+            t1 = l + s - l*s;
+        }
+
+        t2 = 2*l - t1;
+        h /= 360;
+        tr = h + 1.0/3.0;
+        tg = h;
+        tb = h - 1.0/3.0;
+
+        if (tr < 0) {
+            tr++;
+        }
+        if (tr > 1) {
+            tr--;
+        }
+        if (tg < 0) {
+            tg++;
+        }
+        if (tg > 1) {
+            tg--;
+        }
+        if (tb < 0) {
+            tb++;
+        }
+        if (tb > 1) {
+            tb--;
+        }
+
+        // Red
+        if (6*tr < 1) {
+            r = t2 + (t1-t2)*6*tr;
+        } else if (2*tr < 1) {
+            r = t1;
+        } else if (3*tr < 2) {
+            r = t2 + (t1-t2)*(2.0/3.0-tr)*6;
+        } else {
+            r = t2;
+        }
+
+        // Green
+        if (6*tg < 1) {
+            g = t2 + (t1-t2)*6*tg;
+        } else if (2*tg < 1) {
+            g = t1;
+        } else if (3*tg < 2) {
+            g = t2 + (t1-t2)*(2.0/3.0-tg)*6;
+        } else {
+            g = t2;
+        }
+
+        // Blue
+        if (6*tb < 1) {
+            b = t2 + (t1-t2)*6*tb;
+        } else if (2*tb < 1) {
+            b = t1;
+        } else if (3*tb < 2) {
+            b = t2 + (t1-t2)*(2.0/3.0-tb)*6;
+        } else {
+            b = t2;
+        }
+
+        return new Color(r, g, b);
     }
 
     public HSL HSL() {
-        return toComponents(ColorSpace.HSL());
+        var c = this;
+        var min = Math.min(Math.min(c.r, c.g), c.b);
+        var max = Math.max(Math.max(c.r, c.g), c.b);
+
+        double h;
+        double s;
+        double l;
+
+        l = (max + min) / 2;
+
+        if (min == max) {
+            s = 0;
+            h = 0;
+        } else {
+            if (l < 0.5) {
+                s = (max - min) / (max + min);
+            } else {
+                s = (max - min) / (2.0 - max - min);
+            }
+
+            if (max == c.r) {
+                h = (c.g - c.b) / (max - min);
+            } else if (max == c.g) {
+                h = 2.0 + (c.b-c.r)/(max-min);
+            } else {
+                h = 4.0 + (c.r-c.g)/(max-min);
+            }
+
+            h *= 60;
+
+            if (h < 0) {
+                h += 360;
+            }
+        }
+        return new HSL(h, s, l);
     }
 
     public static Color HCL(double h, double c, double l) {
         return HCL(new HCL(h, c, l));
     }
 
+    // Generates a color by using data given in HCL space using D65 as reference white.
+    // H values are in [0..360], C and L values are in [0..1]
+    // WARNING: many combinations of `h`, `c`, and `l` values do not have corresponding
+    // valid RGB values, check the FAQ in the README if you're unsure.
     public static Color HCL(HCL hcl) {
-        return fromComponents(ColorSpace.HCL(), hcl);
+        return HCL(hcl, ReferenceWhite.D65);
     }
 
-    public HCL HCL() {
-        return toComponents(ColorSpace.HCL());
+    // Generates a color by using data given in HCL space, taking
+    // into account a given reference white. (i.e. the monitor's white)
+    // H values are in [0..360], C and L values are in [0..1]
+    public static Color HCL(HCL hcl, ReferenceWhite referenceWhite) {
+        return XYZ(hcl.Lab().XYZ(referenceWhite));
     }
+
+    // Converts the given color to HCL space using D65 as reference white.
+    // H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
+    public HCL HCL() {
+        return HCL(ReferenceWhite.D65);
+    }
+
+    // Converts the given color to HCL space, taking into account
+    // a given reference white. (i.e. the monitor's white)
+    // H values are in [0..360], C and L values are in [0..1]
+    public HCL HCL(ReferenceWhite referenceWhite) {
+        var c = this;
+        return c.Lab(referenceWhite).HCL();
+    }
+
 
     public static Color HSV(double h, double s, double v) {
         return HSV(new HSV(h, s, v));
     }
 
     public static Color HSV(HSV hsv) {
-        return fromComponents(ColorSpace.HSV(), hsv);
+
+        double H = hsv.H();
+        double S = hsv.S();
+        double V = hsv.V();
+
+        var Hp = H / 60.0;
+        var C = V * S;
+        var X = C * (1.0 - Math.abs((Hp % 2.0)-1.0));
+
+        var m = V - C;
+        double r = 0;
+        double g = 0;
+        double b = 0;
+
+        if (0.0 <= Hp && Hp < 1.0) {
+            r = C;
+            g = X;
+        }
+        else if (1.0 <= Hp && Hp < 2.0) {
+            r = X;
+            g = C;
+        }
+        else if (2.0 <= Hp && Hp < 3.0) {
+            g = C;
+            b = X;
+        }
+        else if (3.0 <= Hp && Hp < 4.0) {
+            g = X;
+            b = C;
+        }
+        else if (4.0 <= Hp && Hp < 5.0) {
+            r = X;
+            b = C;
+        }
+        else if (5.0 <= Hp && Hp < 6.0) {
+            r = C;
+            b = X;
+        }
+
+        return new Color(m + r, m + g, m + b);
     }
 
     public HSV HSV() {
-        return toComponents(ColorSpace.HSV());
+        var c = this;
+        double h;
+        double s;
+        double v;
+
+        var min = Math.min(Math.min(c.r, c.g), c.b);
+        v = Math.max(Math.max(c.r, c.g), c.b);
+        var C = v - min;
+
+        s = 0.0;
+        if (v != 0.0) {
+            s = C / v;
+        }
+
+        h = 0.0; // We use 0 instead of undefined as in wp.
+        if (min != v) {
+            if (v == c.r) {
+                h = ((c.g-c.b)/C) % 6.0;
+            }
+            if (v == c.g) {
+                h = (c.b-c.r)/C + 2.0;
+            }
+            if (v == c.b) {
+                h = (c.r-c.g)/C + 4.0;
+            }
+            h *= 60.0;
+            if (h < 0.0) {
+                h += 360.0;
+            }
+        }
+        return new HSV(h, s, v);
     }
 
     public static Color Lab(double L, double a, double b) {
         return Lab(new Lab(L, a, b));
     }
 
+    // Generates a color by using data given in CIE L*a*b* space using D65 as reference white.
+    // WARNING: many combinations of `l`, `a`, and `b` values do not have corresponding
+    // valid RGB values, check the FAQ in the README if you're unsure.
     public static Color Lab(Lab lab) {
-        return fromComponents(ColorSpace.Lab(), lab);
+        return XYZ(lab.XYZ());
     }
 
+    // Generates a color by using data given in CIE L*a*b* space, taking
+    // into account a given reference white. (i.e. the monitor's white)
+    public static Color Lab(Lab lab, ReferenceWhite referenceWhite) {
+        return XYZ(lab.XYZ(referenceWhite));
+    }
+
+    // Converts the given color to CIE L*a*b* space using D65 as reference white.
     public Lab Lab() {
-        return toComponents(ColorSpace.Lab());
+        return XYZ().Lab();
+    }
+
+    // Converts the given color to CIE L*a*b* space, taking into account
+    // a given reference white. (i.e. the monitor's white)
+    public Lab Lab(ReferenceWhite referenceWhite) {
+        return XYZ().Lab(referenceWhite);
     }
 
     public static Color LinearRGB(double R, double G, double B) {
         return LinearRGB(new LinearRGB(R, G, B));
     }
 
+    static double delinearize(double v) {
+        if (v <= 0.0031308) {
+            return 12.92 * v;
+        }
+        return 1.055*Math.pow(v, 1.0/2.4) - 0.055;
+    }
+
     public static Color LinearRGB(LinearRGB linearRGB) {
-        return fromComponents(ColorSpace.linearRGB(), linearRGB);
+        return new Color(
+                delinearize(linearRGB.R()),
+                delinearize(linearRGB.G()),
+                delinearize(linearRGB.B())
+        );
+    }
+
+
+    static double linearize(double v) {
+        if (v <= 0.04045) {
+            return v / 12.92;
+        }
+        return Math.pow((v+0.055)/1.055, 2.4);
     }
 
     public LinearRGB LinearRGB() {
-        return toComponents(ColorSpace.linearRGB());
+        var c = this;
+        var r = linearize(c.r);
+        var g = linearize(c.g);
+        var b = linearize(c.b);
+        return new LinearRGB(r, g, b);
     }
 
-    public static Color hex(String hex) {
-        return fromComponents(ColorSpace.hex(), hex);
+    /// Parses a "html" hex color-string, either in the 3 "#f0c" or 6 "#ff1034" digits form.
+    public static Color hex(String s) {
+        if (s.length() != 7 && s.length() != 4) {
+            throw new ColorSpaceException("Input string must be in 3 or 6 digit hex form: " + s);
+        }
+
+        var factor = 1.0 / 255.0;
+        int digits = 2;
+        if (s.length() == 4) {
+            digits = 1;
+            factor = 1.0 / 15.0;
+        }
+
+        if (s.charAt(0) != '#') {
+            throw new ColorSpaceException("Input string must start with a #: " + s);
+        }
+
+        int r;
+        int g;
+        int b;
+
+        int idx = 1;
+        try {
+            r = Integer.parseInt(s.substring(idx, idx + digits), 16);
+        } catch (NumberFormatException e) {
+            throw new ColorSpaceException(e);
+        }
+
+        idx += digits;
+        try {
+            g = Integer.parseInt(s.substring(idx, idx + digits), 16);
+        } catch (NumberFormatException e) {
+            throw new ColorSpaceException(e);
+        }
+
+        idx += digits;
+        try {
+            b = Integer.parseInt(s.substring(idx, idx + digits), 16);
+        } catch (NumberFormatException e) {
+            throw new ColorSpaceException(e);
+        }
+
+        return new Color(((double) r) * factor, ((double) g) * factor, ((double) b) * factor);
     }
 
     public String hex() {
-        return toComponents(ColorSpace.hex());
+        var c = this;
+        return "#%02x%02x%02x".formatted(
+                (int) Math.clamp(c.r*255.0+0.5, 0, 255),
+                (int) Math.clamp(c.g*255.0+0.5, 0, 255),
+                (int) Math.clamp(c.b*255.0+0.5, 0, 255)
+        );
     }
 
     public static Color XYZ(double X, double Y, double Z) {
@@ -148,35 +421,96 @@ public final class Color {
     }
 
     public static Color XYZ(XYZ XYZ) {
-        return fromComponents(ColorSpace.XYZ(), XYZ);
+        return LinearRGB(XYZ.LinearRGB());
     }
 
     public XYZ XYZ() {
-        return toComponents(ColorSpace.XYZ());
+        var c = this;
+        return c.LinearRGB().XYZ();
     }
 
     public static Color Luv(double L, double u, double v) {
         return Luv(new Luv(L, u, v));
     }
 
+    // Generates a color by using data given in CIE L*u*v* space using D65 as reference white.
+    // L* is in [0..1] and both u* and v* are in about [-1..1]
+    // WARNING: many combinations of `l`, `u`, and `v` values do not have corresponding
+    // valid RGB values, check the FAQ in the README if you're unsure.
     public static Color Luv(Luv luv) {
-        return fromComponents(ColorSpace.Luv(), luv);
+        return Color.XYZ(luv.XYZ());
     }
 
-    public Luv Luv() {
-        return toComponents(ColorSpace.Luv());
+    public static Color Luv(Luv luv, ReferenceWhite referenceWhite) {
+        return Color.XYZ(luv.XYZ(referenceWhite));
     }
+
+    // Converts the given color to CIE L*u*v* space using D65 as reference white.
+    // L* is in [0..1] and both u* and v* are in about [-1..1]
+    public Luv Luv() {
+        var c = this;
+        return c.XYZ().Luv();
+    }
+
+    // Converts the given color to CIE L*u*v* space, taking into account
+    // a given reference white. (i.e. the monitor's white)
+    // L* is in [0..1] and both u* and v* are in about [-1..1]
+    public Luv Luv(ReferenceWhite referenceWhite) {
+        var c = this;
+        return c.XYZ().Luv(referenceWhite);
+    }
+
+    public static Color LuvLCh(double L, double C, double h) {
+        return LuvLCh(new LuvLCh(L, C, h));
+    }
+
+    // Generates a color by using data given in LuvLCh space using D65 as reference white.
+    // h values are in [0..360], C and L values are in [0..1]
+    // WARNING: many combinations of `l`, `c`, and `h` values do not have corresponding
+    // valid RGB values, check the FAQ in the README if you're unsure.
+    public static Color LuvLCh(LuvLCh luvLCh) {
+        return LuvLCh(luvLCh, ReferenceWhite.D65);
+    }
+
+    // Generates a color by using data given in LuvLCh space, taking
+    // into account a given reference white. (i.e. the monitor's white)
+    // h values are in [0..360], C and L values are in [0..1]
+    public static Color LuvLCh(LuvLCh luvLCh, ReferenceWhite referenceWhite) {
+        return Luv(luvLCh.Luv(), referenceWhite);
+    }
+
+    // Converts the given color to LuvLCh space using D65 as reference white.
+    // h values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
+    public LuvLCh LuvLCh() {
+        return this.LuvLCh(ReferenceWhite.D65);
+    }
+
+    // Converts the given color to LuvLCh space, taking into account
+    // a given reference white. (i.e. the monitor's white)
+    // h values are in [0..360], c and l values are in [0..1]
+    public LuvLCh LuvLCh(ReferenceWhite referenceWhite) {
+        return this.Luv(referenceWhite).LuvLCh();
+    }
+
 
     public static Color RGB255(int R, int G, int B) {
         return RGB255(new RGB255(R, G, B));
     }
 
     public static Color RGB255(RGB255 rgb255) {
-        return fromComponents(ColorSpace.RGB255(), rgb255);
+        return Color.sRGB(
+                rgb255.R() / 255.0,
+                rgb255.G() / 255.0,
+                rgb255.B() / 255.0
+        );
     }
 
     public RGB255 RGB255() {
-        return toComponents(ColorSpace.RGB255());
+        var c = this;
+        int r = (int) (c.r*255.0 + 0.5);
+        int g = (int) (c.g*255.0 + 0.5);
+        int b = (int) (c.b*255.0 + 0.5);
+        return new RGB255(r, g, b);
     }
 
     public static Color OkLab(double L, double a, double b) {
@@ -184,11 +518,12 @@ public final class Color {
     }
 
     public static Color OkLab(OkLab okLab) {
-        return fromComponents(ColorSpace.OkLab(), okLab);
+        return XYZ(okLab.XYZ());
     }
 
     public OkLab OkLab() {
-        return toComponents(ColorSpace.OkLab());
+        var c = this;
+        return c.XYZ().OkLab();
     }
 
     public static Color OkLch(double L, double c, double h) {
@@ -196,11 +531,142 @@ public final class Color {
     }
 
     public static Color OkLch(OkLch okLch) {
-        return fromComponents(ColorSpace.OkLch(), okLch);
+        return OkLab(okLch.OkLab());
     }
 
     public OkLch OkLch() {
-        return toComponents(ColorSpace.OkLch());
+        var c = this;
+        return c.OkLab().OkLch();
+    }
+
+    public static Color fastLinearRGB(double R, double G, double B) {
+        return fastLinearRGB(new LinearRGB(R, G, B));
+    }
+
+
+    private static double delinearize_fast(double v) {
+        // This function (fractional root) is much harder to linearize, so we need to split.
+        if (v > 0.2) {
+            var v1 = v - 0.6;
+            var v2 = v1 * v1;
+            var v3 = v2 * v1;
+            var v4 = v2 * v2;
+            var v5 = v3 * v2;
+            return 0.442430344268235 + 0.592178981271708*v - 0.287864782562636*v2 + 0.253214392068985*v3 - 0.272557158129811*v4 + 0.325554383321718*v5;
+        } else if (v > 0.03) {
+            var v1 = v - 0.115;
+            var v2 = v1 * v1;
+            var v3 = v2 * v1;
+            var v4 = v2 * v2;
+            var v5 = v3 * v2;
+            return 0.194915592891669 + 1.55227076330229*v - 3.93691860257828*v2 + 18.0679839248761*v3 - 101.468750302746*v4 + 632.341487393927*v5;
+        } else {
+            var v1 = v - 0.015;
+            var v2 = v1 * v1;
+            var v3 = v2 * v1;
+            var v4 = v2 * v2;
+            var v5 = v3 * v2;
+            // You can clearly see from the involved constants that the low-end is highly nonlinear.
+            return 0.0519565234928877 + 5.09316778537561*v - 99.0338180489702*v2 + 3484.52322764895*v3 - 150028.083412663*v4 + 7168008.42971613*v5;
+        }
+    }
+
+    public static Color fastLinearRGB(LinearRGB linearRGB) {
+        return new Color(
+                delinearize_fast(linearRGB.R()),
+                delinearize_fast(linearRGB.G()),
+                delinearize_fast(linearRGB.B())
+        );
+    }
+
+    // A much faster and still quite precise linearization using a 6th-order Taylor approximation.
+    // See the accompanying Jupyter notebook for derivation of the constants.
+    private static double linearize_fast(double v) {
+        var v1 = v - 0.5;
+        var v2 = v1 * v1;
+        var v3 = v2 * v1;
+        var v4 = v2 * v2;
+        // v5 := v3*v2
+        return -0.248750514614486 + 0.925583310193438*v + 1.16740237321695*v2 + 0.280457026598666*v3 - 0.0757991963780179*v4; //+ 0.0437040411548932*v5
+    }
+
+    public LinearRGB fastLinearRGB() {
+        var c = this;
+        var r = linearize_fast(c.r);
+        var g = linearize_fast(c.g);
+        var b = linearize_fast(c.b);
+        return new LinearRGB(r, g, b);
+    }
+
+    public static Color xyY(double x, double y, double Y) {
+        return xyY(new xyY(x, y, Y));
+    }
+
+    // Generates a color by using data given in CIE xyY space.
+    // x, y and Y are in [0..1]
+    public static Color xyY(xyY xyY) {
+        return XYZ(xyY.XYZ());
+    }
+
+    // Converts the given color to CIE xyY space using D65 as reference white.
+    // (Note that the reference white is only used for black input.)
+    // x, y and Y are in [0..1]
+    public xyY xyY() {
+        var c = this;
+        return c.XYZ().xyY();
+    }
+
+    // Converts the given color to CIE xyY space, taking into account
+    // a given reference white. (i.e. the monitor's white)
+    // (Note that the reference white is only used for black input.)
+    // x, y and Y are in [0..1]
+    public xyY xyY(ReferenceWhite referenceWhite) {
+        var c = this;
+        return c.XYZ().xyY(referenceWhite);
+    }
+
+    public static Color HPLuv(double h, double s, double l) {
+        return HPLuv(new HPLuv(h, s, l));
+    }
+
+    // HPLuv creates a new Color from values in the HPLuv color space.
+    // Hue in [0..360], a Saturation [0..1], and a Luminance (lightness) in [0..1].
+    //
+    // The returned color values are clamped (using .Clamped), so this will never output
+    // an invalid color.
+    public static Color HPLuv(HPLuv hpLuv) {
+        // HPLuv -> LuvLCh -> CIELUV -> CIEXYZ -> Linear RGB -> sRGB
+        return LinearRGB(
+                hpLuv
+                        .LuvLCh()
+                        .Luv()
+                        .XYZ(ReferenceWhite.hSLuvD65)
+                        .LinearRGB()
+        ).clamped();
+    }
+
+    // HPLuv returns the Hue, Saturation and Luminance of the color in the HSLuv
+    // color space. Hue in [0..360], a Saturation [0..1], and a Luminance
+    // (lightness) in [0..1].
+    //
+    // Note that HPLuv can only represent pastel colors, and so the Saturation
+    // value could be much larger than 1 for colors it can't represent.
+    public HPLuv HPLuv() {
+        return LuvLCh(ReferenceWhite.hSLuvD65).HPLuv();
+    }
+
+    // HSLuv returns the Hue, Saturation and Luminance of the color in the HSLuv
+    // color space. Hue in [0..360], a Saturation [0..1], and a Luminance
+    // (lightness) in [0..1].
+    public HSLuv HSLuv() {
+        return LuvLCh(ReferenceWhite.hSLuvD65)
+                .HSLuv();
+    }
+
+    public static Color HSLuv(HSLuv hsLuv) {
+        return LinearRGB(
+                hsLuv.LuvLCh().Luv().XYZ(ReferenceWhite.hSLuvD65).LinearRGB()
+        ).clamped();
     }
 
     /// Checks whether the color exists in RGB space, i.e. all values are in [0..1]
@@ -226,12 +692,12 @@ public final class Color {
 
     @Override
     public String toString() {
-        var hex = toComponents(ColorSpace.hex());
+        var rgb = RGB255();
         return "\033[48:2::%d:%d:%dm \033[49m"
                 .formatted(
-                        Integer.parseInt(hex.substring(1, 3), 16),
-                        Integer.parseInt(hex.substring(3, 5), 16),
-                        Integer.parseInt(hex.substring(5, 7), 16)
+                        rgb.R(),
+                        rgb.G(),
+                        rgb.B()
                 );
     }
 
@@ -462,6 +928,75 @@ public final class Color {
         }
     }
 
+    private static final double kappa = 903.2962962962963;
+    private static final double epsilon = 0.0088564516790356308;
+
+    private  static final double[][] m = {
+            {3.2409699419045214, -1.5373831775700935, -0.49861076029300328},
+            {-0.96924363628087983, 1.8759675015077207, 0.041555057407175613},
+            {0.055630079696993609, -0.20397695888897657, 1.0569715142428786},
+    };
+
+    private static double[][] getBounds(double l) {
+        double sub2;
+        var ret = new double[6][2];
+        var sub1 = Math.pow(l+16.0, 3.0) / 1560896.0;
+        if (sub1 > epsilon) {
+            sub2 = sub1;
+        } else {
+            sub2 = l / kappa;
+        }
+        for (int i = 0; i < m.length; i++) {
+            for (int k = 0; k < 2; k++) {
+                var top1 = (284517.0*m[i][0] - 94839.0*m[i][2]) * sub2;
+                var top2 = (838422.0*m[i][2]+769860.0*m[i][1]+731718.0*m[i][0])*l*sub2 - 769860.0*((double) k)*l;
+                var bottom = (632260.0*m[i][2]-126452.0*m[i][1])*sub2 + 126452.0*((double) k);
+                ret[i*2+k][0] = top1 / bottom;
+                ret[i*2+k][1] = top2 / bottom;
+            }
+        }
+
+        return ret;
+    }
+
+    private static double lengthOfRayUntilIntersect(double theta, double x, double y) {
+        return y / (Math.sin(theta) - x*Math.cos(theta));
+    }
+
+    static double maxChromaForLH(double l, double h) {
+        var hRad = h / 360.0 * Math.PI * 2.0;
+        var minLength = Double.MAX_VALUE;
+        for (var line : getBounds(l)) {
+            var length = lengthOfRayUntilIntersect(hRad, line[0], line[1]);
+            if (length > 0.0 && length < minLength) {
+                minLength = length;
+            }
+        }
+        return minLength;
+    }
+
+    static double maxSafeChromaForL(double l) {
+        var minLength = Double.MAX_VALUE;
+        for (var line : getBounds(l)) {
+            var m1 = line[0];
+            var b1 = line[1];
+            var x = intersectLineLine(m1, b1, -1.0/m1, 0.0);
+            var dist = distanceFromPole(x, b1+x*m1);
+            if (dist < minLength) {
+                minLength = dist;
+            }
+        }
+        return minLength;
+    }
+
+    private static double intersectLineLine(double x1, double y1, double x2, double y2) {
+        return (y1 - y2) / (x2 - x1);
+    }
+
+    private static double distanceFromPole(double x, double y) {
+        return Math.sqrt(Math.pow(x, 2.0) + Math.pow(y, 2.0));
+    }
+
     // DistanceLuv is a good measure of visual similarity between two colors!
     // A result of 0 would mean identical colors, while a result of 1 or higher
     // means the colors differ a lot.
@@ -472,6 +1007,42 @@ public final class Color {
                 switch (c2.Luv()) {
                     case Luv(double l2, double u2, double v2) -> {
                         return Math.sqrt(sq(l1 - l2) + sq(u1 - u2) + sq(v1 - v2));
+                    }
+                }
+            }
+        }
+    }
+
+    // DistanceHSLuv calculates Euclidan distance in the HSLuv colorspace. No idea
+    // how useful this is.
+    //
+    // The Hue value is divided by 100 before the calculation, so that H, S, and L
+    // have the same relative ranges.
+    public double distanceHSLuv(Color c2) {
+        var c1 = this;
+        switch (c1.HSLuv()) {
+            case HSLuv(double h1, double s1, double l1) -> {
+                switch (c2.HSLuv()) {
+                    case HSLuv(double h2, double s2, double l2) -> {
+                        return Math.sqrt(sq((h1-h2)/100.0) + sq(s1-s2) + sq(l1-l2));
+                    }
+                }
+            }
+        }
+    }
+
+    // DistanceHPLuv calculates Euclidean distance in the HPLuv colorspace. No idea
+    // how useful this is.
+    //
+    // The Hue value is divided by 100 before the calculation, so that H, S, and L
+    // have the same relative ranges.
+    public double distanceHPLuv(Color c2) {
+        var c1 = this;
+        switch (c1.HPLuv()) {
+            case HPLuv(double h1, double s1, double l1) -> {
+                switch (c2.HPLuv()) {
+                    case HPLuv(double h2, double s2, double l2) -> {
+                        return Math.sqrt(sq((h1-h2)/100.0) + sq(s1-s2) + sq(l1-l2));
                     }
                 }
             }
@@ -807,7 +1378,7 @@ public final class Color {
     ///
     /// @param random The random number generator to use.
     /// @return A random dark, "warm" color.
-    public static Color warm(Random random) {
+    public static Color warm(RandomGenerator random) {
         Color c = randomWarm(random);
         while (!c.isValid()) {
             c = randomWarm(random);
@@ -815,11 +1386,60 @@ public final class Color {
         return c;
     }
 
-    private static Color randomWarm(Random random) {
+    public static Color fastWarm() {
+        return fastWarm(ThreadLocalRandom.current());
+    }
+
+    // Creates a random dark, "warm" color through a restricted HSV space.
+    public static Color fastWarm(RandomGenerator random) {
+        return HSV(
+                random.nextDouble()*360.0,
+                0.5+random.nextDouble()*0.3,
+                0.3+random.nextDouble()*0.3
+        );
+    }
+
+    private static Color randomWarm(RandomGenerator random) {
         return HCL(
                 random.nextDouble() * 360.0,
                 0.1 + random.nextDouble() * 0.3,
                 0.2 + random.nextDouble() * 0.3
+        );
+    }
+
+    public static Color fastHappy() {
+        return fastHappy(ThreadLocalRandom.current());
+    }
+
+    // Creates a random bright, "pimpy" color through a restricted HSV space.
+    public static Color fastHappy(RandomGenerator random) {
+        return HSV(
+                random.nextDouble()*360.0,
+                0.7+random.nextDouble()*0.3,
+                0.6+random.nextDouble()*0.3
+        );
+    }
+
+    public static Color happy() {
+        return happy(ThreadLocalRandom.current());
+    }
+
+    // Creates a random bright, "pimpy" color through restricted HCL space.
+    // This is slower than FastHappyColor but will likely give you colors which
+    // have the same "brightness" if you run it many times.
+    public static Color happy(RandomGenerator random) {
+        Color c = randomPimp(random);
+        while (!c.isValid()) {
+            c = randomPimp(random);
+        }
+        return c;
+    }
+
+    private static Color randomPimp(RandomGenerator random) {
+        return HCL(
+                random.nextDouble()*360.0,
+                0.5+random.nextDouble()*0.3,
+                0.5+random.nextDouble()*0.3
         );
     }
 
@@ -839,11 +1459,13 @@ public final class Color {
     }
 
     public static List<Color> fastWarm(int colorsCount) {
+        return fastWarm(colorsCount, ThreadLocalRandom.current());
+    }
+
+    public static List<Color> fastWarm(int colorsCount, RandomGenerator random) {
         Color[] colorArr = new Color[colorsCount];
-        var random = ThreadLocalRandom.current();
         for (int i = 0; i < colorArr.length; i++) {
-            colorArr[i] = Color.fromComponents(
-                    HSVColorSpace.INSTANCE,
+            colorArr[i] = HSV(
                     new HSV(i * (360.0 / ((double) colorsCount)), 0.55 + random.nextDouble() * 0.2, 0.35 + random.nextDouble() * 0.2)
             );
         }
@@ -852,11 +1474,13 @@ public final class Color {
     }
 
     public static List<Color> fastHappy(int colorsCount) {
+        return fastHappy(colorsCount, ThreadLocalRandom.current());
+    }
+
+    public static List<Color> fastHappy(int colorsCount, RandomGenerator random) {
         Color[] colorArr = new Color[colorsCount];
-        var random = ThreadLocalRandom.current();
         for (int i = 0; i < colorArr.length; i++) {
-            colorArr[i] = Color.fromComponents(
-                    HSVColorSpace.INSTANCE,
+            colorArr[i] = HSV(
                     new HSV(i * (360.0 / ((double) colorsCount)), 0.8 + random.nextDouble() * 0.2, 0.65 + random.nextDouble() * 0.2)
             );
         }
@@ -871,17 +1495,20 @@ public final class Color {
     }
 
     public static List<Color> soft(int colorsCount) {
+        return soft(colorsCount, ThreadLocalRandom.current());
+    }
+    public static List<Color> soft(int colorsCount, RandomGenerator random) {
         var settings = new SoftPaletteSettings();
         settings.iterations = 50;
         settings.manySamples = false;
 
-        return soft(colorsCount, settings);
+        return soft(colorsCount, settings, random);
     }
 
-    private static List<Color> soft(int colorsCount, SoftPaletteSettings settings) {
+    private static List<Color> soft(int colorsCount, SoftPaletteSettings settings, RandomGenerator random) {
         // Checks whether it's a valid RGB and also fulfills the potentially provided constraint.
         Predicate<Lab> check = (col) -> {
-            var c = Color.fromComponents(ColorSpace.Lab(), new Lab(col.L(), col.a(), col.b()));
+            var c = Lab(new Lab(col.L(), col.a(), col.b()));
             return c.isValid() && settings.checkColor.test(col);
         };
 
@@ -916,13 +1543,12 @@ public final class Color {
 
         // We take the initial means out of the samples, so they are in fact medoids.
         // This helps us avoid infinite loops or arbitrary cutoffs with too restrictive constraints.
-        var rand = ThreadLocalRandom.current();
         Lab[] means = new Lab[colorsCount];
         for (int i = 0; i < colorsCount; i++) {
             for (
-                    means[i] = samples.get(rand.nextInt(samples.size()));
+                    means[i] = samples.get(random.nextInt(samples.size()));
                     in(means, i, means[i]);
-                    means[i] = samples.get(rand.nextInt(samples.size()))
+                    means[i] = samples.get(random.nextInt(samples.size()))
             ) {
             }
 
@@ -980,9 +1606,9 @@ public final class Color {
                     // That mean doesn't have any samples? Get a new mean from the sample list!
                     int inewmean;
                     for (
-                            inewmean = rand.nextInt(samples_used.length);
+                            inewmean = random.nextInt(samples_used.length);
                             samples_used[inewmean];
-                            inewmean = rand.nextInt(samples_used.length)
+                            inewmean = random.nextInt(samples_used.length)
                     ) {
                     }
                     newmean = samples.get(inewmean);
@@ -1016,7 +1642,11 @@ public final class Color {
         return List.of(labs2cols(Arrays.asList(means)));
     }
 
-    static List<Color> warm(int colorsCount) {
+    public static List<Color> warm(int colorsCount) {
+        return warm(colorsCount, ThreadLocalRandom.current());
+    }
+
+    public static List<Color> warm(int colorsCount, RandomGenerator random) {
         Predicate<Lab> warmy = (lab) -> {
             var l = lab.L();
             var c = lab.HCL().C();
@@ -1026,10 +1656,14 @@ public final class Color {
         settings.checkColor = warmy;
         settings.iterations = 50;
         settings.manySamples = true;
-        return soft(colorsCount, settings);
+        return soft(colorsCount, settings, random);
     }
 
-    static List<Color> happy(int colorsCount) {
+    public static List<Color> happy(int colorsCount) {
+        return happy(colorsCount, ThreadLocalRandom.current());
+    }
+
+    public static List<Color> happy(int colorsCount, RandomGenerator random) {
         Predicate<Lab> pimpy = (lab) -> {
             var l = lab.L();
             var c = lab.HCL().C();
@@ -1039,7 +1673,7 @@ public final class Color {
         settings.checkColor = pimpy;
         settings.iterations = 50;
         settings.manySamples = true;
-        return soft(colorsCount, settings);
+        return soft(colorsCount, settings, random);
     }
 
     private static boolean in(Lab[] haystack, int upto, Lab needle) {

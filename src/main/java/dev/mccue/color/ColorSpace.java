@@ -1,59 +1,13 @@
 package dev.mccue.color;
 
-public interface ColorSpace<Components> {
-    Components fromColor(Color c);
+import java.lang.annotation.*;
 
-    Color toColor(Components components);
-
-    static ColorSpace<HSV> HSV() {
-        return HSVColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<HSL> HSL() {
-        return HSLColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<sRGB> sRGB() {
-        return sRGBColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<String> hex() {
-        return HexColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<LinearRGB> linearRGB() {
-        return LinearRGBColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<LinearRGB> fastLinearRGB() {
-        return FastLinearRGBColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<XYZ> XYZ() {
-        return XYZColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<Lab> Lab() {
-        return LabColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<Luv> Luv() {
-        return LuvColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<HCL> HCL() {
-        return HCLColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<RGB255> RGB255() {
-        return RGB255ColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<OkLab> OkLab() {
-        return OkLabColorSpace.INSTANCE;
-    }
-
-    static ColorSpace<OkLch> OkLch() {
-        return OkLchColorSpace.INSTANCE;
-    }
+/// Used to mark a type as being representative of a
+/// color as represented in a color space.
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+@Documented
+public @interface ColorSpace {
+    String[] names();
+    String[] references();
 }
