@@ -52,4 +52,8 @@ public interface ColorSpace<Components> {
     static ColorSpace<OkLab> OkLab() {
         return OkLabColorSpace.INSTANCE;
     }
+
+    static ColorSpace<OkLch> OkLch() {
+        return OkLchColorSpace.INSTANCE;
+    }
 }

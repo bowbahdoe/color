@@ -54,4 +54,24 @@ public record Luv(
             }
         }
     }
+
+    private static double sq(double v) {
+        return v * v;
+    }
+
+    LuvLCh LuvLCh() {
+        // Oops, floating point workaround necessary if u ~= v and both are very small (i.e. almost zero).
+        double l;
+        double c;
+        double h;
+        if (Math.abs(v-u) > 1e-4 && Math.abs(u) > 1e-4) {
+            h = (57.29577951308232087721*Math.atan2(v, u)+360.0) % 360.0; // Rad2Deg
+        } else {
+            h = 0.0;
+        }
+        l = L;
+        c = Math.sqrt(sq(u) + sq(v));
+
+        return new LuvLCh(l, c, h);
+    }
 }

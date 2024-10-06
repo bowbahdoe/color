@@ -1,5 +1,7 @@
 package dev.mccue.color;
 
+import java.util.Objects;
+
 public final class ReferenceWhite {
     final double _0;
     final double _1;
@@ -25,4 +27,26 @@ public final class ReferenceWhite {
     //
     //	https://github.com/hsluv/hsluv/issues/79
     static final ReferenceWhite hSLuvD65 = new ReferenceWhite(0.95045592705167, 1.0, 1.089057750759878);
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ReferenceWhite that
+                && Double.compare(_0, that._0) == 0
+                && Double.compare(_1, that._1) == 0
+                && Double.compare(_2, that._2) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(_0, _1, _2);
+    }
+
+    @Override
+    public String toString() {
+        return "ReferenceWhite[" +
+                 _0 +
+                ", " + _1 +
+                ", " + _2 +
+                ']';
+    }
 }

@@ -1,5 +1,7 @@
 package dev.mccue.color;
 
+// http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/
+// http://www.brucelindbloom.com/Eqn_RGB_to_XYZ.html
 public record LinearRGB(
         double R,
         double G,

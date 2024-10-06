@@ -47,7 +47,7 @@ public final class Color {
     /// Convert this color to a {@link ColorSpace} and recover the components of
     /// that representation.
     ///
-    /// @param colorSpace The color space to convert to.
+    /// @param colorSpace   The color space to convert to.
     /// @param <Components> The type for the components of colors in that space.
     /// @return The components for the color.
     public <Components> Components toComponents(ColorSpace<Components> colorSpace) {
@@ -56,8 +56,8 @@ public final class Color {
 
     /// Construct a color given the proper components and a {@link ColorSpace}.
     ///
-    /// @param colorSpace The color space
-    /// @param components The components for the color.
+    /// @param colorSpace   The color space
+    /// @param components   The components for the color.
     /// @param <Components> The type for the components of colors in that space.
     public static <Components> Color fromComponents(ColorSpace<Components> colorSpace, Components components) {
         return colorSpace.toColor(components);
@@ -162,6 +162,7 @@ public final class Color {
     public static Color Luv(Luv luv) {
         return fromComponents(ColorSpace.Luv(), luv);
     }
+
     public Luv Luv() {
         return toComponents(ColorSpace.Luv());
     }
@@ -176,6 +177,30 @@ public final class Color {
 
     public RGB255 RGB255() {
         return toComponents(ColorSpace.RGB255());
+    }
+
+    public static Color OkLab(double L, double a, double b) {
+        return OkLab(new OkLab(L, a, b));
+    }
+
+    public static Color OkLab(OkLab okLab) {
+        return fromComponents(ColorSpace.OkLab(), okLab);
+    }
+
+    public OkLab OkLab() {
+        return toComponents(ColorSpace.OkLab());
+    }
+
+    public static Color OkLch(double L, double c, double h) {
+        return OkLch(new OkLch(L, c, h));
+    }
+
+    public static Color OkLch(OkLch okLch) {
+        return fromComponents(ColorSpace.OkLch(), okLch);
+    }
+
+    public OkLch OkLch() {
+        return toComponents(ColorSpace.OkLch());
     }
 
     /// Checks whether the color exists in RGB space, i.e. all values are in [0..1]
@@ -223,9 +248,9 @@ public final class Color {
     /// Computes the distance between two colors in RGB space.
     ///
     /// @apiNote This is not a good measure! Rather do it in Lab space.
-    public double distanceRgb(Color c2)  {
+    public double distanceRgb(Color c2) {
         var c1 = this;
-        return Math.sqrt(sq(c1.r-c2.r) + sq(c1.g-c2.g) + sq(c1.b-c2.b));
+        return Math.sqrt(sq(c1.r - c2.r) + sq(c1.g - c2.g) + sq(c1.b - c2.b));
     }
 
     /// Computes the distance between two colors in linear RGB
@@ -251,7 +276,7 @@ public final class Color {
     /// Sources:
     ///
     /// @see <a href="https://www.compuphase.com/cmetric.htm">https://www.compuphase.com/cmetric.htm</a>
-    ///	@see <a href="https://github.com/lucasb-eyer/go-colorful/issues/52">https://github.com/lucasb-eyer/go-colorful/issues/52</a>
+    /// @see <a href="https://github.com/lucasb-eyer/go-colorful/issues/52">https://github.com/lucasb-eyer/go-colorful/issues/52</a>
     public double distanceRiemersma(Color c1, Color c2) {
         var rAvg = (c1.r + c2.r) / 2.0;
         // Deltas
@@ -259,7 +284,7 @@ public final class Color {
         var dG = c1.g - c2.g;
         var dB = c1.b - c2.b;
 
-        return Math.sqrt((2+rAvg)*dR*dR + 4*dG*dG + (2+(1-rAvg))*dB*dB);
+        return Math.sqrt((2 + rAvg) * dR * dR + 4 * dG * dG + (2 + (1 - rAvg)) * dB * dB);
     }
 
     /// Uses the Delta E 2000 formula to calculate color
@@ -303,7 +328,7 @@ public final class Color {
         var cab2 = Math.sqrt(sq(a2) + sq(b2));
         var cabmean = (cab1 + cab2) / 2;
 
-        var g = 0.5 * (1 - Math.sqrt(Math.pow(cabmean, 7)/(Math.pow(cabmean, 7)+Math.pow(25, 7))));
+        var g = 0.5 * (1 - Math.sqrt(Math.pow(cabmean, 7) / (Math.pow(cabmean, 7) + Math.pow(25, 7))));
         var ap1 = (1 + g) * a1;
         var ap2 = (1 + g) * a2;
         var cp1 = Math.sqrt(sq(ap1) + sq(b1));
@@ -338,15 +363,15 @@ public final class Color {
                 dhp += 360;
             }
         }
-        var deltaHp = 2 * Math.sqrt(cpProduct) * Math.sin(dhp/2*Math.PI/180);
+        var deltaHp = 2 * Math.sqrt(cpProduct) * Math.sin(dhp / 2 * Math.PI / 180);
 
         var lpmean = (l1 + l2) / 2;
         var cpmean = (cp1 + cp2) / 2;
         var hpmean = hp1 + hp2;
         if (cpProduct != 0) {
             hpmean /= 2;
-            if (Math.abs(hp1-hp2) > 180) {
-                if (hp1+hp2 < 360) {
+            if (Math.abs(hp1 - hp2) > 180) {
+                if (hp1 + hp2 < 360) {
                     hpmean += 180;
                 } else {
                     hpmean -= 180;
@@ -354,16 +379,103 @@ public final class Color {
             }
         }
 
-        var t = 1 - 0.17*Math.cos((hpmean-30)*Math.PI/180) + 0.24*Math.cos(2*hpmean*Math.PI/180) + 0.32*Math.cos((3*hpmean+6)*Math.PI/180) - 0.2*Math.cos((4*hpmean-63)*Math.PI/180);
-        var deltaTheta = 30 * Math.exp(-sq((hpmean-275)/25));
-        var rc = 2 * Math.sqrt(Math.pow(cpmean, 7)/(Math.pow(cpmean, 7)+Math.pow(25, 7)));
-        var sl = 1 + (0.015*sq(lpmean-50))/Math.sqrt(20+sq(lpmean-50));
-        var sc = 1 + 0.045*cpmean;
-        var sh = 1 + 0.015*cpmean*t;
-        var rt = -Math.sin(2*deltaTheta*Math.PI/180) * rc;
+        var t = 1 - 0.17 * Math.cos((hpmean - 30) * Math.PI / 180) + 0.24 * Math.cos(2 * hpmean * Math.PI / 180) + 0.32 * Math.cos((3 * hpmean + 6) * Math.PI / 180) - 0.2 * Math.cos((4 * hpmean - 63) * Math.PI / 180);
+        var deltaTheta = 30 * Math.exp(-sq((hpmean - 275) / 25));
+        var rc = 2 * Math.sqrt(Math.pow(cpmean, 7) / (Math.pow(cpmean, 7) + Math.pow(25, 7)));
+        var sl = 1 + (0.015 * sq(lpmean - 50)) / Math.sqrt(20 + sq(lpmean - 50));
+        var sc = 1 + 0.045 * cpmean;
+        var sh = 1 + 0.015 * cpmean * t;
+        var rt = -Math.sin(2 * deltaTheta * Math.PI / 180) * rc;
 
-        return Math.sqrt(sq(deltaLp/(kL*sl))+sq(deltaCp/(kC*sc))+sq(deltaHp/(kH*sh))+rt*(deltaCp/(kC*sc))*(deltaHp/(kH*sh))) * 0.01;
+        return Math.sqrt(sq(deltaLp / (kL * sl)) + sq(deltaCp / (kC * sc)) + sq(deltaHp / (kH * sh)) + rt * (deltaCp / (kC * sc)) * (deltaHp / (kH * sh))) * 0.01;
 
+    }
+
+    // DistanceLab is a good measure of visual similarity between two colors!
+    // A result of 0 would mean identical colors, while a result of 1 or higher
+    // means the colors differ a lot.
+    public double distanceLab(Color c2) {
+        var c1 = this;
+        switch (c1.Lab()) {
+            case Lab(double l1, double a1, double b1) -> {
+                switch (c2.Lab()) {
+                    case Lab(double l2, double a2, double b2) -> {
+                        return Math.sqrt(sq(l1 - l2) + sq(a1 - a2) + sq(b1 - b2));
+                    }
+                }
+            }
+        }
+    }
+
+    // DistanceCIE76 is the same as DistanceLab.
+    public double distanceCIE76(Color c2) {
+        return distanceLab(c2);
+    }
+
+
+    // Uses the CIE94 formula to calculate color distance. More accurate than
+    // DistanceLab, but also more work.
+    public double distanceCIE94(Color cr) {
+        var cl = this;
+
+        switch (cl.Lab()) {
+            case Lab(var l1, var a1, var b1) -> {
+                switch (cr.Lab()) {
+                    case Lab(var l2, var a2, var b2) -> {
+                        // NOTE: Since all those formulas expect L,a,b values 100x larger than we
+                        //       have them in this library, we either need to adjust all constants
+                        //       in the formula, or convert the ranges of L,a,b before, and then
+                        //       scale the distances down again. The latter is less error-prone.
+                        l1 = 100 * l1;
+                        a1 = 100 * a1;
+                        b1 = 100 * b1;
+
+                        l2 = 100 * l2;
+                        a2 = 100 * a2;
+                        b2 = 100 * b2;
+
+                        var kl = 1.0; // 2.0 for textiles
+                        var kc = 1.0;
+                        var kh = 1.0;
+                        var k1 = 0.045; // 0.048 for textiles
+                        var k2 = 0.015; // 0.014 for textiles.
+
+                        var deltaL = l1 - l2;
+                        var c1 = Math.sqrt(sq(a1) + sq(b1));
+                        var c2 = Math.sqrt(sq(a2) + sq(b2));
+                        var deltaCab = c1 - c2;
+
+                        // Not taking Sqrt here for stability, and it's unnecessary.
+                        var deltaHab2 = sq(a1 - a2) + sq(b1 - b2) - sq(deltaCab);
+                        var sl = 1.0;
+                        var sc = 1.0 + k1 * c1;
+                        var sh = 1.0 + k2 * c1;
+
+                        var vL2 = sq(deltaL / (kl * sl));
+                        var vC2 = sq(deltaCab / (kc * sc));
+                        var vH2 = deltaHab2 / sq(kh * sh);
+
+                        return Math.sqrt(vL2 + vC2 + vH2) * 0.01; // See above.
+                    }
+                }
+            }
+        }
+    }
+
+    // DistanceLuv is a good measure of visual similarity between two colors!
+    // A result of 0 would mean identical colors, while a result of 1 or higher
+    // means the colors differ a lot.
+    public double distanceLuv(Color c2) {
+        var c1 = this;
+        switch (c1.Luv()) {
+            case Luv(double l1, double u1, double v1) -> {
+                switch (c2.Luv()) {
+                    case Luv(double l2, double u2, double v2) -> {
+                        return Math.sqrt(sq(l1 - l2) + sq(u1 - u2) + sq(v1 - v2));
+                    }
+                }
+            }
+        }
     }
 
     // An element represents a single element of a set.  It is used to
@@ -387,7 +499,7 @@ public final class Color {
     // invoked on any element of the set.  Consequently, it can be used to test if
     // two elements belong to the same set.
     private static Element find(Element e) {
-        for (;e.parent != e;) {
+        for (; e.parent != e; ) {
             e.parent = e.parent.parent;
             e = e.parent;
         }
@@ -408,19 +520,19 @@ public final class Color {
         // larger tree.
         if (e1Root.rank < e2Root.rank) {
             e1Root.parent = e2Root;
-        }
-        else if (e1Root.rank > e2Root.rank) {
+        } else if (e1Root.rank > e2Root.rank) {
             e2Root.parent = e1Root;
-        }
-        else {
+        } else {
             e2Root.parent = e1Root;
             e1Root.rank++;
         }
     }
 
-    private record EdgeIdxs(int _0, int _1) {}
+    private record EdgeIdxs(int _0, int _1) {
+    }
 
-    private record EdgeDistances(Map<EdgeIdxs, Double> value) {}
+    private record EdgeDistances(Map<EdgeIdxs, Double> value) {
+    }
 
     // allToAllDistancesCIEDE2000 computes the CIEDE2000 distance between each pair of
     // colors.  It returns a map from a pair of indices (u, v) with u < v to a
@@ -428,7 +540,7 @@ public final class Color {
     private static EdgeDistances allToAllDistances(List<Color> cs, ColorDistance colorDistance) {
         var nc = cs.size();
         var m = new HashMap<EdgeIdxs, Double>(nc * nc);
-        for (int u = 0; u < nc-1; u++) {
+        for (int u = 0; u < nc - 1; u++) {
             for (int v = u + 1; v < nc; v++) {
                 m.put(new EdgeIdxs(u, v), colorDistance.distance(cs.get(u), cs.get(v)));
             }
@@ -555,6 +667,8 @@ public final class Color {
         return List.of(newCs);
     }
 
+    // BlendLab blends two colors in the L*a*b* color-space, which should result in a smoother blend.
+    // t == 0 results in c1, t == 1 results in c2
     public Color blendLab(Color c2, double t) {
         var c1 = this;
 
@@ -562,9 +676,9 @@ public final class Color {
             case Lab(double l1, double a1, double b1) -> {
                 switch (c2.Lab()) {
                     case Lab(double l2, double a2, double b2) -> {
-                        return Lab(l1+t*(l2-l1),
-                                a1+t*(a2-a1),
-                                b1+t*(b2-b1));
+                        return Lab(l1 + t * (l2 - l1),
+                                a1 + t * (a2 - a1),
+                                b1 + t * (b2 - b1));
                     }
                 }
             }
@@ -580,33 +694,108 @@ public final class Color {
             case Luv(double l1, double u1, double v1) -> {
                 switch (c2.Luv()) {
                     case Luv(double l2, double u2, double v2) -> {
-                        return Luv(l1+t*(l2-l1),
-                                u1+t*(u2-u1),
-                                v1+t*(v2-v1));
+                        return Luv(l1 + t * (l2 - l1),
+                                u1 + t * (u2 - u1),
+                                v1 + t * (v2 - v1));
                     }
                 }
             }
         }
     }
 
-    /*public Color blendHCL(Color col2, double t) {
+    // You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
+    public Color blendRgb(Color c2, double t) {
+        var c1 = this;
+        return new Color(
+                c1.r + t * (c2.r - c1.r),
+                c1.g + t * (c2.g - c1.g),
+                c1.b + t * (c2.b - c1.b)
+        );
+    }
+
+    // BlendLinearRgb blends two colors in the Linear RGB color-space.
+    // Unlike BlendRgb, this will not produce dark color around the center.
+    // t == 0 results in c1, t == 1 results in c2
+    public Color blendLinearRgb(Color c2, double t) {
+        var c1 = this;
+        switch (c1.LinearRGB()) {
+            case LinearRGB(double r1, double g1, double b1) -> {
+                switch (c2.LinearRGB()) {
+                    case LinearRGB(double r2, double g2, double b2) -> {
+                        return Color.LinearRGB(
+                                r1 + t * (r2 - r1),
+                                g1 + t * (g2 - g1),
+                                b1 + t * (b2 - b1)
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    // Utility used by Hxx color-spaces for interpolating between two angles in [0,360].
+    private static double interp_angle(double a0, double a1, double t) {
+        // Based on the answer here: http://stackoverflow.com/a/14498790/2366315
+        // With potential proof that it works here: http://math.stackexchange.com/a/2144499
+        var delta = (((a1 - a0 % 360.0) + 540) % 360.0) - 180.0;
+        return (a0 + t * delta + 360.0) % 360.0;
+    }
+
+    // You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
+    public Color blendHSV(Color c2, double t) {
+        var c1 = this;
+        switch (c1.HSV()) {
+            case HSV(double h1, double s1, double v1) -> {
+                switch (c2.HSV()) {
+                    case HSV(double h2, double s2, double v2) -> {
+                        // https://github.com/lucasb-eyer/go-colorful/pull/60
+                        if (s1 == 0 && s2 != 0) {
+                            h1 = h2;
+                        } else if (s2 == 0 && s1 != 0) {
+                            h2 = h1;
+                        }
+
+                        // We know that h are both in [0..360]
+                        return HSV(interp_angle(h1, h2, t), s1 + t * (s2 - s1), v1 + t * (v2 - v1));
+                    }
+                }
+            }
+        }
+    }
+
+    // BlendHcl blends two colors in the CIE-L*C*h° color-space, which should result in a smoother blend.
+    // t == 0 results in c1, t == 1 results in c2
+    public Color blendHCL(Color col2, double t) {
         var col1 = this;
 
-        // BlendHcl blends two colors in the CIE-L*C*h° color-space, which should result in a smoother blend.
-        // t == 0 results in c1, t == 1 results in c2
-        h1, c1, l1 := col1.Hcl()
-        h2, c2, l2 := col2.Hcl()
+        switch (col1.HCL()) {
+            case HCL(var h1, var c1, var l1) -> {
+                switch (col2.HCL()) {
+                    case HCL(var h2, var c2, var l2) -> {
+                        // https://github.com/lucasb-eyer/go-colorful/pull/60
+                        if (c1 <= 0.00015 && c2 >= 0.00015) {
+                            h1 = h2;
+                        } else if (c2 <= 0.00015 && c1 >= 0.00015) {
+                            h2 = h1;
+                        }
 
-        // https://github.com/lucasb-eyer/go-colorful/pull/60
-        if c1 <= 0.00015 && c2 >= 0.00015 {
-            h1 = h2
-        } else if c2 <= 0.00015 && c1 >= 0.00015 {
-            h2 = h1
+                        // We know that h are both in [0..360]
+                        return HCL(interp_angle(h1, h2, t), c1 + t * (c2 - c1), l1 + t * (l2 - l1)).clamped();
+                    }
+                }
+            }
         }
+    }
+
+    // BlendLuvLCh blends two colors in the cylindrical CIELUV color space.
+    // t == 0 results in c1, t == 1 results in c2
+    /* public Color BlendLuvLCh(Color col2, double t) {
+        l1, c1, h1 := col1.LuvLCh()
+        l2, c2, h2 := col2.LuvLCh()
 
         // We know that h are both in [0..360]
-        return Hcl(interp_angle(h1, h2, t), c1+t*(c2-c1), l1+t*(l2-l1)).Clamped()
-    }*/
+        return LuvLCh(l1+t*(l2-l1), c1+t*(c2-c1), interp_angle(h1, h2, t))
+    } */
 
     public static Color warm() {
         return warm(ThreadLocalRandom.current());
@@ -628,18 +817,18 @@ public final class Color {
 
     private static Color randomWarm(Random random) {
         return HCL(
-                random.nextDouble()*360.0,
-                0.1+random.nextDouble()*0.3,
-                0.2+random.nextDouble()*0.3
+                random.nextDouble() * 360.0,
+                0.1 + random.nextDouble() * 0.3,
+                0.2 + random.nextDouble() * 0.3
         );
     }
 
     // Check for equality between colors within the tolerance Delta (1/255).
     public boolean almostEqualRgb(Color c2, double delta) {
         var c1 = this;
-        return Math.abs(c1.r-c2.r)+
-                Math.abs(c1.g-c2.g)+
-                Math.abs(c1.b-c2.b) < 3.0*delta;
+        return Math.abs(c1.r - c2.r) +
+                Math.abs(c1.g - c2.g) +
+                Math.abs(c1.b - c2.b) < 3.0 * delta;
     }
 
     private static final double DELTA = 1.0 / 255;
@@ -652,10 +841,10 @@ public final class Color {
     public static List<Color> fastWarm(int colorsCount) {
         Color[] colorArr = new Color[colorsCount];
         var random = ThreadLocalRandom.current();
-        for (int i = 0; i < colorArr.length; i++){
+        for (int i = 0; i < colorArr.length; i++) {
             colorArr[i] = Color.fromComponents(
                     HSVColorSpace.INSTANCE,
-                    new HSV(i*(360.0/((double) colorsCount)), 0.55+random.nextDouble()*0.2, 0.35+random.nextDouble()*0.2)
+                    new HSV(i * (360.0 / ((double) colorsCount)), 0.55 + random.nextDouble() * 0.2, 0.35 + random.nextDouble() * 0.2)
             );
         }
 
@@ -665,10 +854,10 @@ public final class Color {
     public static List<Color> fastHappy(int colorsCount) {
         Color[] colorArr = new Color[colorsCount];
         var random = ThreadLocalRandom.current();
-        for (int i = 0; i < colorArr.length; i++){
+        for (int i = 0; i < colorArr.length; i++) {
             colorArr[i] = Color.fromComponents(
                     HSVColorSpace.INSTANCE,
-                    new HSV(i*(360.0/((double) colorsCount)), 0.8+random.nextDouble()*0.2, 0.65+random.nextDouble()*0.2)
+                    new HSV(i * (360.0 / ((double) colorsCount)), 0.8 + random.nextDouble() * 0.2, 0.65 + random.nextDouble() * 0.2)
             );
         }
 
@@ -704,7 +893,7 @@ public final class Color {
             dab = 0.05;
         }
 
-        ArrayList<Lab> samples = new ArrayList<>((int) (1.0/dl*2.0/dab*2.0/dab));
+        ArrayList<Lab> samples = new ArrayList<>((int) (1.0 / dl * 2.0 / dab * 2.0 / dab));
         for (double l = 0.0; l <= 1.0; l += dl) {
             for (double a = -1.0; a <= 1.0; a += dab) {
                 for (double b = -1.0; b <= 1.0; b += dab) {
@@ -734,7 +923,8 @@ public final class Color {
                     means[i] = samples.get(rand.nextInt(samples.size()));
                     in(means, i, means[i]);
                     means[i] = samples.get(rand.nextInt(samples.size()))
-            ) {}
+            ) {
+            }
 
         }
 
@@ -786,8 +976,7 @@ public final class Color {
                             newmean.a() / nsamples,
                             newmean.b() / nsamples
                     );
-                }
-                else {
+                } else {
                     // That mean doesn't have any samples? Get a new mean from the sample list!
                     int inewmean;
                     for (
@@ -869,15 +1058,15 @@ public final class Color {
     // That's faster than using colorful's DistanceLab since we would have to
     // convert back and forth for that. Here is no conversion.
     private static double lab_dist(Lab lab1, Lab lab2) {
-        return Math.sqrt(sq(lab1.L()-lab2.L()) + sq(lab1.a()-lab2.a()) + sq(lab1.b()-lab2.b()));
+        return Math.sqrt(sq(lab1.L() - lab2.L()) + sq(lab1.a() - lab2.a()) + sq(lab1.b() - lab2.b()));
     }
 
     private static final double LAB_DELTA = 1e-6;
 
     private static boolean lab_eq(Lab lab1, Lab lab2) {
-        return Math.abs(lab1.L()-lab2.L()) < LAB_DELTA &&
-                Math.abs(lab1.a()-lab2.a()) < LAB_DELTA &&
-                Math.abs(lab1.b()-lab2.b()) < LAB_DELTA;
+        return Math.abs(lab1.L() - lab2.L()) < LAB_DELTA &&
+                Math.abs(lab1.a() - lab2.a()) < LAB_DELTA &&
+                Math.abs(lab1.b() - lab2.b()) < LAB_DELTA;
     }
 
     private static Color[] labs2cols(List<Lab> labs) {

@@ -5,6 +5,7 @@ final class HSVColorSpace implements ColorSpace<HSV> {
 
     private HSVColorSpace() {}
 
+    // Hsv returns the Hue [0..360], Saturation and Value [0..1] of the color.
     @Override
     public HSV fromColor(Color c) {
         double h;
@@ -39,6 +40,7 @@ final class HSVColorSpace implements ColorSpace<HSV> {
         return new HSV(h, s, v);
     }
 
+    // Hsv creates a new Color given a Hue in [0..360], a Saturation and a Value in [0..1]
     @Override
     public Color toColor(HSV hsv) {
         double H = hsv.H();

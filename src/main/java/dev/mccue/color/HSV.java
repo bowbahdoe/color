@@ -1,5 +1,7 @@
 package dev.mccue.color;
 
+// From http://en.wikipedia.org/wiki/HSL_and_HSV
+// Note that h is in [0..360] and s,v in [0..1]
 public record HSV(
         /// Hue
         double H,
