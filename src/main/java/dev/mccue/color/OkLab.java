@@ -12,7 +12,7 @@ public record OkLab(
         double b
 ) {
 
-    XYZ XYZ() {
+    public XYZ XYZ() {
         var l = L;
         var l_ = 0.9999999984505196*l + 0.39633779217376774*a + 0.2158037580607588*b;
         var m_ = 1.0000000088817607*l - 0.10556134232365633*a - 0.0638541747717059*b;
@@ -29,7 +29,7 @@ public record OkLab(
         return new XYZ(x, y, z);
     }
 
-    OkLch OkLch() {
+    public OkLch OkLch() {
         var c = Math.sqrt((a * a) + (b * b));
         var h = Math.atan2(b, a);
         if (h < 0) {

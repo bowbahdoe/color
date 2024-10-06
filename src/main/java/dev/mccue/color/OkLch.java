@@ -5,14 +5,14 @@ public record OkLch(
         double c,
         double h
 ) {
-    OkLab OkLab() {
+    public OkLab OkLab() {
         var h = this.h * Math.PI / 180;
         var a = c * Math.cos(h);
         var b = c * Math.sin(h);
         return new OkLab(L, a, b);
     }
 
-    XYZ XYZ() {
+    public XYZ XYZ() {
         return OkLab().XYZ();
     }
 }

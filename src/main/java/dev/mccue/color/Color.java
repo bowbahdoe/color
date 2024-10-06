@@ -8,18 +8,9 @@ import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
-/// A color.
+/// This class represents a color.
 ///
-/// In physical reality colors are an emergent property of light.
-///
-/// When our eyes see light of a certain wavelength we perceive that
-/// as a Color. So if the wavelength of light is between 490 and 580
-/// nanometers that is what we generally associate with "green."
-///
-/// Computers tend to want to handle this differently
-///
-/// This class represents a color. Its internal representation of
-/// these values is in sRGB (standard RGB). This maps to common
+/// Its internal representation of is in sRGB (standard RGB). This maps to common
 /// displays which display colors by powering separate Red, Green, and Blue
 /// lights in specific proportions.
 ///
@@ -743,7 +734,8 @@ public final class Color {
     ///
     /// @see <a href="https://www.compuphase.com/cmetric.htm">https://www.compuphase.com/cmetric.htm</a>
     /// @see <a href="https://github.com/lucasb-eyer/go-colorful/issues/52">https://github.com/lucasb-eyer/go-colorful/issues/52</a>
-    public double distanceRiemersma(Color c1, Color c2) {
+    public double distanceRiemersma(Color c2) {
+        var c1 = this;
         var rAvg = (c1.r + c2.r) / 2.0;
         // Deltas
         var dR = c1.r - c2.r;
@@ -1275,7 +1267,7 @@ public final class Color {
     }
 
     // You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
-    public Color blendRgb(Color c2, double t) {
+    public Color blendRGB(Color c2, double t) {
         var c1 = this;
         return new Color(
                 c1.r + t * (c2.r - c1.r),
@@ -1287,7 +1279,7 @@ public final class Color {
     // BlendLinearRgb blends two colors in the Linear RGB color-space.
     // Unlike BlendRgb, this will not produce dark color around the center.
     // t == 0 results in c1, t == 1 results in c2
-    public Color blendLinearRgb(Color c2, double t) {
+    public Color blendLinearRGB(Color c2, double t) {
         var c1 = this;
         switch (c1.LinearRGB()) {
             case LinearRGB(double r1, double g1, double b1) -> {
@@ -1360,13 +1352,19 @@ public final class Color {
 
     // BlendLuvLCh blends two colors in the cylindrical CIELUV color space.
     // t == 0 results in c1, t == 1 results in c2
-    /* public Color BlendLuvLCh(Color col2, double t) {
-        l1, c1, h1 := col1.LuvLCh()
-        l2, c2, h2 := col2.LuvLCh()
+    public Color blendLuvLCh(Color col2, double t) {
+        switch (this.LuvLCh()) {
+            case LuvLCh(double l1, double c1, double h1) -> {
+                switch (col2.LuvLCh()) {
+                    case LuvLCh(double l2, double c2, double h2) -> {
+                        // We know that h are both in [0..360]
+                        return LuvLCh(l1+t*(l2-l1), c1+t*(c2-c1), interp_angle(h1, h2, t));
 
-        // We know that h are both in [0..360]
-        return LuvLCh(l1+t*(l2-l1), c1+t*(c2-c1), interp_angle(h1, h2, t))
-    } */
+                    }
+                }
+            }
+        }
+     }
 
     public static Color warm() {
         return warm(ThreadLocalRandom.current());

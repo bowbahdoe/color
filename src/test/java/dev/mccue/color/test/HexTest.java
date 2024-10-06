@@ -92,4 +92,82 @@ public class HexTest {
                 Color.hex("#000")
         );
     }
+
+    @Test
+    public void shortHexValuesUpperCase() {
+        assertEquals(
+                Color.sRGB(1.0, 1.0, 1.0),
+                Color.hex("#fff".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0.6, 1.0, 1.0),
+                Color.hex("#9ff".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(1.0, 0.6, 1.0),
+                Color.hex("#f9f".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(1.0, 1.0, 0.6),
+                Color.hex("#ff9".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0.6, 0.6, 1.0),
+                Color.hex("#99f".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(1, 0.6, 0.6),
+                Color.hex("#f99".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0.6, 1, 0.6),
+                Color.hex("#9f9".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0.6, 0.6, 0.6),
+                Color.hex("#999".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0, 1, 1),
+                Color.hex("#0ff".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(1, 0, 1),
+                Color.hex("#f0f".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(1, 1, 0),
+                Color.hex("#ff0".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0, 0, 1),
+                Color.hex("#00f".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0, 1, 0),
+                Color.hex("#0f0".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(1, 0, 0),
+                Color.hex("#f00".toUpperCase())
+        );
+
+        assertEquals(
+                Color.sRGB(0, 0, 0),
+                Color.hex("#000".toUpperCase())
+        );
+    }
 }

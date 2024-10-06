@@ -16,8 +16,23 @@ public class ColorValidityTest {
         rand.setSeed(seed);
 
         for (int i = 0; i < 100; i++) {
-            // var col = Color.warm(rand);
-            // assertTrue(col.isValid(), "Invalid Color: seed: " + seed);
+            var col = Color.warm(rand);
+            assertTrue(col.isValid(), "Invalid Color: seed: " + seed);
+        }
+
+        for (int i = 0; i < 100; i++) {
+            var col = Color.fastWarm(rand);
+            assertTrue(col.isValid(), "Invalid Color: seed: " + seed);
+        }
+
+        for (int i = 0; i < 100; i++) {
+            var col = Color.happy(rand);
+            assertTrue(col.isValid(), "Invalid Color: seed: " + seed);
+        }
+
+        for (int i = 0; i < 100; i++) {
+            var col = Color.fastHappy(rand);
+            assertTrue(col.isValid(), "Invalid Color: seed: " + seed);
         }
     }
 }

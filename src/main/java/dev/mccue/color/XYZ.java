@@ -63,7 +63,7 @@ public record XYZ(
         }
     }
 
-    Luv Luv(ReferenceWhite wref) {
+    public Luv Luv(ReferenceWhite wref) {
         double l;
         double u;
         double v;
@@ -85,7 +85,7 @@ public record XYZ(
         }
     }
 
-    OkLab OkLab() {
+    public OkLab OkLab() {
         var l_ = Math.cbrt(0.8189330101*X + 0.3618667424*Y - 0.1288597137*Z);
         var m_ = Math.cbrt(0.0329845436*X + 0.9293118715*Y + 0.0361456387*Z);
         var s_ = Math.cbrt(0.0482003018*X + 0.2643662691*Y + 0.6338517070*Z);
@@ -95,15 +95,15 @@ public record XYZ(
         return new OkLab(l, a, b);
     }
 
-    OkLch OkLch() {
+    public OkLch OkLch() {
         return OkLab().OkLch();
     }
 
-    xyY xyY() {
+    public xyY xyY() {
         return xyY(ReferenceWhite.D65);
     }
 
-    xyY xyY(ReferenceWhite wref) {
+    public xyY xyY(ReferenceWhite wref) {
         double x;
         double y;
         var N = X + Y + Z;
