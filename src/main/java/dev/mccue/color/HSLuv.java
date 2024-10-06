@@ -5,7 +5,7 @@ public record HSLuv(
         double S,
         double L
 ) {
-    LuvLCh LuvLCh() {
+    public LuvLCh LuvLCh() {
         var l = 100 * L;
         var s = 100 * S;
 

@@ -5,7 +5,7 @@ public record HPLuv(
         double S,
         double L
 ) {
-    LuvLCh LuvLCh() {
+    public LuvLCh LuvLCh() {
         // [-1..1] but the code expects it to be [-100..100]
         var l = L * 100.0;
         var s = S * 100.0;

@@ -7,7 +7,7 @@ public record xyY(
         double y,
         double Y
 ) {
-    XYZ XYZ() {
+    public XYZ XYZ() {
         double X;
         double Z;
         if (-1e-14 < y && y < 1e-14) {

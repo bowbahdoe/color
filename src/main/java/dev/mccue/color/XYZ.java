@@ -14,14 +14,14 @@ public record XYZ(
         double Z
 ) {
     // XyzToLinearRgb converts from CIE XYZ-space to Linear RGB space.
-    LinearRGB LinearRGB() {
+    public LinearRGB LinearRGB() {
         var r = 3.2409699419045214* X - 1.5373831775700935* Y - 0.49861076029300328* Z;
         var g = -0.96924363628087983* X + 1.8759675015077207* Y + 0.041555057407175613* Z;
         var b = 0.055630079696993609* X - 0.20397695888897657* Y + 1.0569715142428786* Z;
         return new LinearRGB(r, g, b);
     }
 
-    Lab Lab() {
+    public Lab Lab() {
         // Use D65 white as reference point by default.
         // http://www.fredmiranda.com/forum/topic/1035332
         // http://en.wikipedia.org/wiki/Standard_illuminant
@@ -35,7 +35,7 @@ public record XYZ(
         return t/3.0*29.0/6.0*29.0/6.0 + 4.0/29.0;
     }
 
-    Lab Lab(ReferenceWhite wref) {
+    public Lab Lab(ReferenceWhite wref) {
         var fy = lab_f(Y / wref._1);
         var l = 1.16*fy - 0.16;
         var a = 5.0 * (lab_f(X /wref._0) - fy);
@@ -44,7 +44,7 @@ public record XYZ(
         return new Lab(l, a, b);
     }
 
-    Luv Luv() {
+    public Luv Luv() {
         return Luv(ReferenceWhite.D65);
     }
 

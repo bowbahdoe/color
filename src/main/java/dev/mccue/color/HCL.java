@@ -8,7 +8,7 @@ public record HCL(
     static final double[] D65 = new double[] { 0.95047, 1.00000, 1.08883 };
 
 
-    Lab Lab() {
+    public Lab Lab() {
         var H = 0.01745329251994329576 * this.H; // Deg2Rad
         double a = C * Math.cos(H);
         double b = C * Math.sin(H);

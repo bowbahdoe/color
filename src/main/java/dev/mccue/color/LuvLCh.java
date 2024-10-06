@@ -1,7 +1,7 @@
 package dev.mccue.color;
 
 public record LuvLCh(double L, double C, double h) {
-    HSLuv HSLuv() {
+    public HSLuv HSLuv() {
         // [-1..1] but the code expects it to be [-100..100]
         var c = C * 100.0;
         var l = L * 100.0;
@@ -19,7 +19,7 @@ public record LuvLCh(double L, double C, double h) {
         );
     }
 
-    Luv Luv() {
+    public Luv Luv() {
         double L;
         double u;
         double v;
@@ -31,7 +31,7 @@ public record LuvLCh(double L, double C, double h) {
         return new Luv(L, u, v);
     }
 
-    HPLuv HPLuv() {
+    public HPLuv HPLuv() {
         var c = C;
         var l = L;
         // [-1..1] but the code expects it to be [-100..100]

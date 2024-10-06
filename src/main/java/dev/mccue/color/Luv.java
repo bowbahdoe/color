@@ -9,7 +9,7 @@ public record Luv(
         double u,
         double v
 ) {
-    XYZ XYZ() {
+    public XYZ XYZ() {
         return XYZ(ReferenceWhite.D65);
     }
 
@@ -31,7 +31,7 @@ public record Luv(
     }
 
 
-    XYZ XYZ(ReferenceWhite wref) {
+    public XYZ XYZ(ReferenceWhite wref) {
         double x;
         double y;
         double z = 0;
@@ -63,7 +63,7 @@ public record Luv(
         return v * v;
     }
 
-    LuvLCh LuvLCh() {
+    public LuvLCh LuvLCh() {
         // Oops, floating point workaround necessary if u ~= v and both are very small (i.e. almost zero).
         double l;
         double c;

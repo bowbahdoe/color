@@ -6,7 +6,7 @@ public record Lab(
         double b
 ) {
 
-    XYZ XYZ() {
+    public XYZ XYZ() {
         return XYZ(ReferenceWhite.D65);
     }
 
@@ -17,7 +17,7 @@ public record Lab(
         return 3.0 * 6.0 / 29.0 * 6.0 / 29.0 * (t - 4.0/29.0);
     }
 
-    XYZ XYZ(ReferenceWhite wref) {
+    public XYZ XYZ(ReferenceWhite wref) {
         var l2 = (L + 0.16) / 1.16;
         var x = wref._0 * lab_finv(l2+a/5.0);
         var y = wref._1 * lab_finv(l2);
@@ -29,7 +29,7 @@ public record Lab(
         return v * v;
     }
 
-    HCL HCL() {
+    public HCL HCL() {
         double h;
         double c;
         double l;
