@@ -6,7 +6,7 @@
 
     <groupId>dev.mccue</groupId>
     <artifactId>color</artifactId>
-    <version>2024.10.06</version>
+    <version>2024.10.07</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -30,17 +30,12 @@
 
     <licenses>
         <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jspecify</groupId>
-            <artifactId>jspecify</artifactId>
-            <version>1.0.0</version>
-        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
