@@ -44,4 +44,24 @@ public record Lab(
         l = L;
         return new HCL(h, c, l);
     }
+
+    public Lab blend(Lab c2, double t) {
+        var c1 = this;
+
+        switch (c1) {
+            case Lab(double l1, double a1, double b1) -> {
+                switch (c2) {
+                    case Lab(double l2, double a2, double b2) -> {
+                        return new Lab(l1 + t * (l2 - l1),
+                                a1 + t * (a2 - a1),
+                                b1 + t * (b2 - b1));
+                    }
+                }
+            }
+        }
+    }
+
+    public Lab blend(Lab c2) {
+        return blend(c2, 0.5);
+    }
 }

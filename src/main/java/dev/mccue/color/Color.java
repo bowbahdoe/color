@@ -601,8 +601,7 @@ public final class Color {
     // (Note that the reference white is only used for black input.)
     // x, y and Y are in [0..1]
     public xyY xyY() {
-        var c = this;
-        return c.XYZ().xyY();
+        return this.XYZ().xyY();
     }
 
     // Converts the given color to CIE xyY space, taking into account
@@ -1231,19 +1230,7 @@ public final class Color {
     // BlendLab blends two colors in the L*a*b* color-space, which should result in a smoother blend.
     // t == 0 results in c1, t == 1 results in c2
     public Color blendLab(Color c2, double t) {
-        var c1 = this;
-
-        switch (c1.Lab()) {
-            case Lab(double l1, double a1, double b1) -> {
-                switch (c2.Lab()) {
-                    case Lab(double l2, double a2, double b2) -> {
-                        return Lab(l1 + t * (l2 - l1),
-                                a1 + t * (a2 - a1),
-                                b1 + t * (b2 - b1));
-                    }
-                }
-            }
-        }
+        return Color.Lab(this.Lab().blend(c2.Lab(), t));
     }
 
     public Color blendLab(Color c2) {
@@ -1513,14 +1500,16 @@ public final class Color {
     }
 
     private static final class PaletteGenerationSettings {
-        Predicate<Lab> checkColor = __ -> true;
-        int iterations = 50;
+        static final int DEFAULT_ITERATIONS = 50;
+        LabPredicate checkColor = __ -> true;
+        int iterations = DEFAULT_ITERATIONS;
         boolean manySamples;
     }
 
     public static List<Color> soft(int colorsCount) {
         return soft(colorsCount, ThreadLocalRandom.current());
     }
+
     public static List<Color> soft(int colorsCount, RandomGenerator random) {
         var settings = new PaletteGenerationSettings();
         settings.iterations = 50;
@@ -1671,7 +1660,7 @@ public final class Color {
     }
 
     public static List<Color> warm(int colorsCount, RandomGenerator random) {
-        Predicate<Lab> warmy = (lab) -> {
+        LabPredicate warmy = (lab) -> {
             var l = lab.L();
             var c = lab.HCL().C();
             return 0.1 <= c && c <= 0.4 && 0.2 <= l && l <= 0.5;
@@ -1688,7 +1677,7 @@ public final class Color {
     }
 
     public static List<Color> happy(int colorsCount, RandomGenerator random) {
-        Predicate<Lab> pimpy = (lab) -> {
+        LabPredicate pimpy = (lab) -> {
             var l = lab.L();
             var c = lab.HCL().C();
             return 0.3 <= c && 0.4 <= l && l <= 0.8;
