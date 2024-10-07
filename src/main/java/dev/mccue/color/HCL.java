@@ -5,9 +5,6 @@ public record HCL(
         double C,
         double L
 ) {
-    static final double[] D65 = new double[] { 0.95047, 1.00000, 1.08883 };
-
-
     public Lab Lab() {
         var H = 0.01745329251994329576 * this.H; // Deg2Rad
         double a = C * Math.cos(H);

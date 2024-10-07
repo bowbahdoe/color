@@ -1,13 +1,6 @@
 package dev.mccue.color;
 
 /// CIE-XYZ: CIE'S standard color space, almost in [0..1].
-@ColorSpace(
-        names = "CIE-XYZ",
-        references = {
-                "http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/",
-                "https://en.wikipedia.org/wiki/CIE_1931_color_space"
-        }
-)
 public record XYZ(
         double X,
         double Y,

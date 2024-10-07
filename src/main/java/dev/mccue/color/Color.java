@@ -1,7 +1,5 @@
 package dev.mccue.color;
 
-import javax.sound.sampled.Line;
-import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntConsumer;
