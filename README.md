@@ -5,6 +5,20 @@ Color library for the JVM.
 Heavily based on [go-colorful](https://github.com/lucasb-eyer/go-colorful/tree/master)
 by [Lucas Beyer](https://github.com/lucasb-eyer).
 
+## Status
+
+I am still working through this and working toward actually understanding
+colors, color spaces, etc.
+
+As such I might revisit some design choices without mercy. Notably the `HCL`
+type might have a bad name and the auto-clamping behavior on some color space
+component records like `sRGB` might be a bad call.
+
+Keep that in mind if you want to use it for anything. You can always reach out
+to me directly to make sure some particular piece of API surface is stable.
+
+Other than that, I need to do a lot more documentation. Both javadocs and
+tutorials for appropriate usage.
 
 ## Usage
 
