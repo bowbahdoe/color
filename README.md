@@ -5,6 +5,14 @@ Color library for the JVM.
 Heavily based on [go-colorful](https://github.com/lucasb-eyer/go-colorful/tree/master)
 by [Lucas Beyer](https://github.com/lucasb-eyer).
 
+```xml
+<dependency>
+    <groupId>dev.mccue</groupId>
+    <artifactId>color</artifactId>
+    <version>2024.10.07</version>
+</dependency>
+```
+
 ## Status
 
 I am still working through this and working toward actually understanding
