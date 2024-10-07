@@ -124,7 +124,7 @@ public class ColorTest {
     @MethodSource("vals")
     public void testHsvCreation(Val val) {
         assertTrue(
-                Color.HSV(val.hsv).almostEqualRgb(val.c)
+                Color.HSV(val.hsv).almostEqualRGB(val.c)
         );
     }
 
@@ -155,7 +155,7 @@ public class ColorTest {
     @MethodSource("vals")
     public void testHslCreation(Val tt) {
         var c = Color.HSL(tt.hsl);
-        assertTrue(c.almostEqualRgb(tt.c));
+        assertTrue(c.almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -171,14 +171,14 @@ public class ColorTest {
     @MethodSource("vals")
     public void testHexCreation(Val tt) {
         var c = Color.hex(tt.hex);
-        assertTrue(c.almostEqualRgb(tt.c));
+        assertTrue(c.almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
     @MethodSource("vals")
     public void testHEXCreation(Val tt) {
         var c = Color.hex(tt.hex.toUpperCase());
-        assertTrue(c.almostEqualRgb(tt.c));
+        assertTrue(c.almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -187,10 +187,10 @@ public class ColorTest {
         assertEquals(tt.c.hex(), tt.hex);
     }
 
-    // LinearRgb itself is implicitly tested by XYZ conversions below (they use it).
-    // So what we do here is just test that the FastLinearRgb approximation is "good enough"
+    // LinearRGB itself is implicitly tested by XYZ conversions below (they use it).
+    // So what we do here is just test that the FastLinearRGB approximation is "good enough"
     @Test
-    public void testFastLinearRgb() {
+    public void testFastLinearRGB() {
         var eps = 6.0 / 255.0; // We want that "within 6 RGB values total" is "good enough".
 
         for (double r = 0.0; r < 256.0; r++) {
@@ -229,7 +229,7 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testXyzCreation(Val tt) {
-        assertTrue(Color.XYZ(tt.xyz).almostEqualRgb(tt.c));
+        assertTrue(Color.XYZ(tt.xyz).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -244,7 +244,7 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testXyyCreation(Val tt) {
-        assertTrue(Color.xyY(tt.xyY).almostEqualRgb(tt.c));
+        assertTrue(Color.xyY(tt.xyY).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -260,8 +260,8 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testLabCreation(Val tt) {
-        assertTrue(Color.Lab(tt.lab).almostEqualRgb(tt.c));
-        assertTrue(Color.Lab(tt.lab50, ReferenceWhite.D50).almostEqualRgb(tt.c));
+        assertTrue(Color.Lab(tt.lab).almostEqualRGB(tt.c));
+        assertTrue(Color.Lab(tt.lab50, ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -283,8 +283,8 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testLuvCreation(Val tt) {
-        assertTrue(Color.Luv(tt.luv).almostEqualRgb(tt.c));
-        assertTrue(Color.Luv(tt.luv50, ReferenceWhite.D50).almostEqualRgb(tt.c));
+        assertTrue(Color.Luv(tt.luv).almostEqualRGB(tt.c));
+        assertTrue(Color.Luv(tt.luv50, ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -306,8 +306,8 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testHclCreation(Val tt) {
-        assertTrue(Color.HCL(tt.hcl).almostEqualRgb(tt.c));
-        assertTrue(Color.HCL(tt.hcl50, ReferenceWhite.D50).almostEqualRgb(tt.c));
+        assertTrue(Color.HCL(tt.hcl).almostEqualRGB(tt.c));
+        assertTrue(Color.HCL(tt.hcl50, ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -341,7 +341,7 @@ public class ColorTest {
 
     @ParameterizedTest
     @MethodSource("rgbLabs")
-    public void testRgbToOkLab(RGBLab rgbLab) {
+    public void testRGBToOkLab(RGBLab rgbLab) {
         var lab = Color.LinearRGB(rgbLab.R, rgbLab.G, rgbLab.B).XYZ()
                 .OkLab();
         assertTrue(almosteq(lab.L(), rgbLab.L));

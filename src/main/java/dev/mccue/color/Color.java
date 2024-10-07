@@ -703,7 +703,7 @@ public final class Color {
     /// Computes the distance between two colors in RGB space.
     ///
     /// @apiNote This is not a good measure! Rather do it in Lab space.
-    public double distanceRgb(Color c2) {
+    public double distanceRGB(Color c2) {
         var c1 = this;
         return Math.sqrt(sq(c1.r - c2.r) + sq(c1.g - c2.g) + sq(c1.b - c2.b));
     }
@@ -1246,6 +1246,10 @@ public final class Color {
         }
     }
 
+    public Color blendLab(Color c2) {
+        return blendLab(c2, 0.5);
+    }
+
     // BlendLuv blends two colors in the CIE-L*u*v* color-space, which should result in a smoother blend.
     // t == 0 results in c1, t == 1 results in c2
     public Color blendLuv(Color c2, double t) {
@@ -1264,6 +1268,10 @@ public final class Color {
         }
     }
 
+    public Color blendLuv(Color c2) {
+        return blendLuv(c2, 0.5);
+    }
+
     // You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
     public Color blendRGB(Color c2, double t) {
         var c1 = this;
@@ -1274,8 +1282,12 @@ public final class Color {
         );
     }
 
-    // BlendLinearRgb blends two colors in the Linear RGB color-space.
-    // Unlike BlendRgb, this will not produce dark color around the center.
+    public Color blendRGB(Color c2) {
+        return blendRGB(c2, 0.5);
+    }
+
+    // BlendLinearRGB blends two colors in the Linear RGB color-space.
+    // Unlike BlendRGB, this will not produce dark color around the center.
     // t == 0 results in c1, t == 1 results in c2
     public Color blendLinearRGB(Color c2, double t) {
         var c1 = this;
@@ -1292,6 +1304,10 @@ public final class Color {
                 }
             }
         }
+    }
+
+    public Color blendLinearRGB(Color c2) {
+        return blendLinearRGB(c2, 0.5);
     }
 
     // Utility used by Hxx color-spaces for interpolating between two angles in [0,360].
@@ -1324,6 +1340,10 @@ public final class Color {
         }
     }
 
+    public Color blendHSV(Color c2) {
+        return blendHSV(c2, 0.5);
+    }
+
     // BlendHcl blends two colors in the CIE-L*C*h° color-space, which should result in a smoother blend.
     // t == 0 results in c1, t == 1 results in c2
     public Color blendHCL(Color col2, double t) {
@@ -1348,6 +1368,10 @@ public final class Color {
         }
     }
 
+    public Color blendHCL(Color col2) {
+        return blendHCL(col2, 0.5);
+    }
+
     // BlendLuvLCh blends two colors in the cylindrical CIELUV color space.
     // t == 0 results in c1, t == 1 results in c2
     public Color blendLuvLCh(Color col2, double t) {
@@ -1362,6 +1386,10 @@ public final class Color {
                 }
             }
         }
+     }
+
+     public Color blendLuvLCh(Color col2) {
+        return blendLuvLCh(col2, 0.5);
      }
 
     public static Color warm() {
@@ -1440,7 +1468,7 @@ public final class Color {
     }
 
     // Check for equality between colors within the tolerance Delta (1/255).
-    public boolean almostEqualRgb(Color c2, double delta) {
+    public boolean almostEqualRGB(Color c2, double delta) {
         var c1 = this;
         return Math.abs(c1.r - c2.r) +
                 Math.abs(c1.g - c2.g) +
@@ -1450,8 +1478,8 @@ public final class Color {
     private static final double DELTA = 1.0 / 255;
 
     // Check for equality between colors within the tolerance Delta (1/255).
-    public boolean almostEqualRgb(Color c2) {
-        return almostEqualRgb(c2, DELTA);
+    public boolean almostEqualRGB(Color c2) {
+        return almostEqualRGB(c2, DELTA);
     }
 
     public static List<Color> fastWarm(int colorsCount) {
@@ -1484,7 +1512,7 @@ public final class Color {
         return List.of(colorArr);
     }
 
-    private static final class SoftPaletteSettings {
+    private static final class PaletteGenerationSettings {
         Predicate<Lab> checkColor = __ -> true;
         int iterations = 50;
         boolean manySamples;
@@ -1494,14 +1522,14 @@ public final class Color {
         return soft(colorsCount, ThreadLocalRandom.current());
     }
     public static List<Color> soft(int colorsCount, RandomGenerator random) {
-        var settings = new SoftPaletteSettings();
+        var settings = new PaletteGenerationSettings();
         settings.iterations = 50;
         settings.manySamples = false;
 
         return soft(colorsCount, settings, random);
     }
 
-    private static List<Color> soft(int colorsCount, SoftPaletteSettings settings, RandomGenerator random) {
+    private static List<Color> soft(int colorsCount, PaletteGenerationSettings settings, RandomGenerator random) {
         // Checks whether it's a valid RGB and also fulfills the potentially provided constraint.
         Predicate<Lab> check = (col) -> {
             var c = Lab(new Lab(col.L(), col.a(), col.b()));
@@ -1648,7 +1676,7 @@ public final class Color {
             var c = lab.HCL().C();
             return 0.1 <= c && c <= 0.4 && 0.2 <= l && l <= 0.5;
         };
-        var settings = new SoftPaletteSettings();
+        var settings = new PaletteGenerationSettings();
         settings.checkColor = warmy;
         settings.iterations = 50;
         settings.manySamples = true;
@@ -1665,7 +1693,7 @@ public final class Color {
             var c = lab.HCL().C();
             return 0.3 <= c && 0.4 <= l && l <= 0.8;
         };
-        var settings = new SoftPaletteSettings();
+        var settings = new PaletteGenerationSettings();
         settings.checkColor = pimpy;
         settings.iterations = 50;
         settings.manySamples = true;

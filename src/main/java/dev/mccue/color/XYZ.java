@@ -6,7 +6,7 @@ public record XYZ(
         double Y,
         double Z
 ) {
-    // XyzToLinearRgb converts from CIE XYZ-space to Linear RGB space.
+    // XyzToLinearRGB converts from CIE XYZ-space to Linear RGB space.
     public LinearRGB LinearRGB() {
         var r = 3.2409699419045214* X - 1.5373831775700935* Y - 0.49861076029300328* Z;
         var g = -0.96924363628087983* X + 1.8759675015077207* Y + 0.041555057407175613* Z;

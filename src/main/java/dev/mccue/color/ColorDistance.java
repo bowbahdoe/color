@@ -10,7 +10,7 @@ package dev.mccue.color;
 /// @see Color#distanceCIE94(Color)
 /// @see Color#distanceLinearRGB(Color)
 /// @see Color#distanceLuv(Color)
-/// @see Color#distanceRgb(Color)
+/// @see Color#distanceRGB(Color)
 /// @see Color#distanceRiemersma(Color)
 /// @see Color#distanceHPLuv(Color)
 /// @see Color#distanceHSLuv(Color)
