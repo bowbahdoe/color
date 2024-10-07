@@ -12,7 +12,7 @@ import java.util.random.RandomGenerator;
 /// displays which display colors by powering separate Red, Green, and Blue
 /// lights in specific proportions.
 ///
-/// @apiNote This class does not validate or clamp values so that they
+/// Note: This class does not validate or clamp values so that they
 /// are in the 0-1 range that sRGB wants. This is to make it more practical
 /// to use as an intermediate when converting between spaces that might have
 /// temporary values which fall outside the human perceptible spectrum. If
@@ -701,7 +701,7 @@ public final class Color {
 
     /// Computes the distance between two colors in RGB space.
     ///
-    /// @apiNote This is not a good measure! Rather do it in Lab space.
+    /// Note: This is not a good measure! Rather do it in Lab space.
     public double distanceRGB(Color c2) {
         var c1 = this;
         return Math.sqrt(sq(c1.r - c2.r) + sq(c1.g - c2.g) + sq(c1.b - c2.b));
