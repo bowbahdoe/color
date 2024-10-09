@@ -35,6 +35,7 @@ public record sRGB(
         return Math.pow((v+0.055)/1.055, 2.4);
     }
 
+    @Override
     public LinearRGB LinearRGB() {
         var c = this;
         var r = linearize(c.R);
@@ -43,18 +44,21 @@ public record sRGB(
         return new LinearRGB(r, g, b);
     }
 
+    @Override
     public XYZ XYZ() {
         var c = this;
         return c.LinearRGB().XYZ();
     }
 
     // Converts the given color to CIE L*a*b* space using D65 as reference white.
+    @Override
     public Lab Lab() {
         return XYZ().Lab();
     }
 
     // Converts the given color to CIE L*a*b* space, taking into account
     // a given reference white. (i.e. the monitor's white)
+    @Override
     public Lab Lab(ReferenceWhite referenceWhite) {
         return XYZ().Lab(referenceWhite);
     }
@@ -114,6 +118,7 @@ public record sRGB(
 
     // Converts the given color to HCL space using D65 as reference white.
     // H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
+    @Override
     public LabLCh LabLCh() {
         return LabLCh(ReferenceWhite.D65);
     }
@@ -121,6 +126,7 @@ public record sRGB(
     // Converts the given color to HCL space, taking into account
     // a given reference white. (i.e. the monitor's white)
     // H values are in [0..360], C and L values are in [0..1]
+    @Override
     public LabLCh LabLCh(ReferenceWhite referenceWhite) {
         var c = this;
         return c.Lab(referenceWhite).LabLCh();
@@ -128,6 +134,7 @@ public record sRGB(
 
     // Converts the given color to CIE L*u*v* space using D65 as reference white.
     // L* is in [0..1] and both u* and v* are in about [-1..1]
+    @Override
     public Luv Luv() {
         var c = this;
         return c.XYZ().Luv();
@@ -136,12 +143,13 @@ public record sRGB(
     // Converts the given color to CIE L*u*v* space, taking into account
     // a given reference white. (i.e. the monitor's white)
     // L* is in [0..1] and both u* and v* are in about [-1..1]
+    @Override
     public Luv Luv(ReferenceWhite referenceWhite) {
         var c = this;
         return c.XYZ().Luv(referenceWhite);
     }
 
-
+    @Override
     public HSV HSV() {
         var c = this;
         double h;
@@ -179,6 +187,7 @@ public record sRGB(
 
     // Converts the given color to LuvLCh space using D65 as reference white.
     // h values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
+    @Override
     public LuvLCh LuvLCh() {
         return this.LuvLCh(ReferenceWhite.D65);
     }
@@ -190,6 +199,7 @@ public record sRGB(
         return this.Luv(referenceWhite).LuvLCh();
     }
 
+    @Override
     public RGB255 RGB255() {
         var c = this;
         int r = (int) (c.R*255.0 + 0.5);
@@ -232,6 +242,7 @@ public record sRGB(
     // a given reference white. (i.e. the monitor's white)
     // (Note that the reference white is only used for black input.)
     // x, y and Y are in [0..1]
+    @Override
     public xyY xyY(ReferenceWhite referenceWhite) {
         var c = this;
         return c.XYZ().xyY(referenceWhite);

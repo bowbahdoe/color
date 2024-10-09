@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -491,5 +495,59 @@ public class ColorTest {
 
         assertEquals(c1.blendLuvLCh(c2, 0).hex(), c1hex);
         assertEquals(c1.blendLuvLCh(c2, 1).hex(), c2hex);
+    }
+
+    @ParameterizedTest
+    @MethodSource("vals")
+    public void allColorMethodsCallable(Val val) throws Exception {
+        // There is a chance we mess up and conversions between spaces
+        // have circular loops. This tests for that.
+        var methods = Arrays.stream(Color.class.getMethods())
+                .filter(method -> method.getParameterCount() == 0 && !Modifier.isStatic(method.getModifiers()))
+                .toList();
+
+        for (var method : methods) {
+            method.invoke(Color.HPLuv(0, 0, 0));
+            method.invoke(Color.HSL(0, 0, 0));
+            method.invoke(Color.HSLuv(0, 0, 0));
+            method.invoke(Color.HSV(0, 0, 0));
+            method.invoke(Color.Lab(0, 0, 0));
+            method.invoke(Color.LabLCh(0, 0, 0));
+            method.invoke(Color.LinearRGB(0, 0, 0));
+            method.invoke(Color.Luv(0, 0, 0));
+            method.invoke(Color.LuvLCh(0, 0, 0));
+            method.invoke(Color.OkLab(0, 0, 0));
+            method.invoke(Color.OkLch(0, 0, 0));
+            method.invoke(Color.RGB255(0, 0, 0));
+            method.invoke(Color.sRGB(0, 0, 0));
+            method.invoke(Color.xyY(0, 0, 0));
+            method.invoke(Color.XYZ(0, 0, 0));
+        }
+
+        var refWhitemethods = Arrays.stream(Color.class.getMethods())
+                .filter(method -> method.getParameterCount() == 1
+                        && method.getParameterTypes()[0] == ReferenceWhite.class
+                        && !Modifier.isStatic(method.getModifiers()))
+                .toList();
+
+        for (var method : refWhitemethods) {
+            for (var refWhite : List.of(ReferenceWhite.D65, ReferenceWhite.D50)) {
+                method.invoke(Color.HPLuv(0, 0, 0), refWhite);
+                method.invoke(Color.HSL(0, 0, 0), refWhite);
+                method.invoke(Color.HSLuv(0, 0, 0), refWhite);
+                method.invoke(Color.HSV(0, 0, 0), refWhite);
+                method.invoke(Color.Lab(0, 0, 0), refWhite);
+                method.invoke(Color.LabLCh(0, 0, 0), refWhite);
+                method.invoke(Color.LinearRGB(0, 0, 0), refWhite);
+                method.invoke(Color.Luv(0, 0, 0), refWhite);
+                method.invoke(Color.LuvLCh(0, 0, 0), refWhite);
+                method.invoke(Color.OkLab(0, 0, 0), refWhite);
+                method.invoke(Color.OkLch(0, 0, 0), refWhite);
+                method.invoke(Color.RGB255(0, 0, 0), refWhite);
+                method.invoke(Color.sRGB(0, 0, 0), refWhite);
+                method.invoke(Color.xyY(0, 0, 0), refWhite);
+                method.invoke(Color.XYZ(0, 0, 0), refWhite);
+            }
+        }
     }
 }

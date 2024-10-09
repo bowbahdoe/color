@@ -67,6 +67,7 @@ public record Luv(
         return v * v;
     }
 
+    @Override
     public LuvLCh LuvLCh() {
         // Oops, floating point workaround necessary if u ~= v and both are very small (i.e. almost zero).
         double l;
@@ -87,6 +88,7 @@ public record Luv(
     // L* is in [0..1] and both u* and v* are in about [-1..1]
     // WARNING: many combinations of `l`, `u`, and `v` values do not have corresponding
     // valid RGB values, check the FAQ in the README if you're unsure.
+    @Override
     public sRGB sRGB() {
         return this.XYZ().sRGB();
     }

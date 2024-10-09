@@ -25,6 +25,7 @@ public record LuvLCh(double L, double C, double h) implements Color {
         return this.Luv(referenceWhite).sRGB();
     }
 
+    @Override
     public HSLuv HSLuv() {
         // [-1..1] but the code expects it to be [-100..100]
         var c = C * 100.0;
@@ -56,10 +57,12 @@ public record LuvLCh(double L, double C, double h) implements Color {
         return new Luv(L, u, v);
     }
 
+    @Override
     public Luv Luv(ReferenceWhite referenceWhite) {
         return Luv().Luv(referenceWhite);
     }
 
+    @Override
     public HPLuv HPLuv() {
         var c = C;
         var l = L;

@@ -9,9 +9,12 @@ public record LinearRGB(
         double G,
         double B
 ) implements Color {
+    @Override
     public LinearRGB LinearRGB() {
         return this;
     }
+
+    @Override
     public XYZ XYZ() {
         var x = 0.41239079926595948*R + 0.35758433938387796*G + 0.18048078840183429*B;
         var y = 0.21263900587151036*R + 0.71516867876775593*G + 0.072192315360733715*B;

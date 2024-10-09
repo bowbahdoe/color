@@ -175,15 +175,6 @@ public interface Color {
         return sRGB().XYZ();
     }
 
-    /// Convert this color to the {@link XYZ}
-    /// color space.
-    ///
-    /// @param referenceWhite The reference white to use.
-    /// @return This color in the {@link XYZ} color space.
-    default XYZ XYZ(ReferenceWhite referenceWhite) {
-        return sRGB().XYZ(referenceWhite);
-    }
-
     /// Convert this color to the {@link OkLab}
     /// color space.
     ///

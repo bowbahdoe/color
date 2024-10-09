@@ -30,6 +30,7 @@ public record LabLCh(
         return new Lab(L, a, b);
     }
 
+    @Override
     public sRGB sRGB() {
         return this.sRGB(ReferenceWhite.D65);
     }

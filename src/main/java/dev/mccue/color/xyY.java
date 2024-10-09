@@ -34,6 +34,4 @@ public record xyY(
     public sRGB sRGB() {
         return XYZ().sRGB();
     }
-
-
 }

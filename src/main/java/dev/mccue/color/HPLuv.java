@@ -10,6 +10,7 @@ public record HPLuv(
         return this;
     }
 
+    @Override
     public LuvLCh LuvLCh() {
         // [-1..1] but the code expects it to be [-100..100]
         var l = L * 100.0;

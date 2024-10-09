@@ -22,6 +22,7 @@ public record HSV(
         this.V = V;
     }
 
+    @Override
     public HSV HSV() {
         return this;
     }

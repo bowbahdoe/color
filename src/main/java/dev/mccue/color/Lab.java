@@ -8,10 +8,12 @@ public record Lab(
         double a,
         double b
 ) implements Color {
+    @Override
     public Lab Lab() {
         return this;
     }
 
+    @Override
     public XYZ XYZ() {
         return XYZ(ReferenceWhite.D65);
     }
@@ -35,6 +37,7 @@ public record Lab(
         return v * v;
     }
 
+    @Override
     public LabLCh LabLCh() {
         double h;
         double c;
@@ -55,6 +58,7 @@ public record Lab(
     // Generates a color by using data given in CIE L*a*b* space using D65 as reference white.
     // WARNING: many combinations of `l`, `a`, and `b` values do not have corresponding
     // valid RGB values, check the FAQ in the README if you're unsure.
+    @Override
     public sRGB sRGB() {
         return this.XYZ().sRGB();
     }

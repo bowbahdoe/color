@@ -12,6 +12,7 @@ public record HSLuv(
         return this;
     }
 
+    @Override
     public LuvLCh LuvLCh() {
         var l = 100 * L;
         var s = 100 * S;
@@ -29,6 +30,7 @@ public record HSLuv(
         return new LuvLCh(Math.clamp(l / 100.0, 0, 1), c / 100.0, H);
     }
 
+    @Override
     public sRGB sRGB() {
         return this.LuvLCh().Luv().XYZ(ReferenceWhite.hSLuvD65).LinearRGB().sRGB().clamped();
     }
