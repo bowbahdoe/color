@@ -2,6 +2,7 @@ package dev.mccue.color;
 
 import static dev.mccue.color.Util.interp_angle;
 
+/// The {@link Luv} color space in cylindrical coordinates.
 public record LuvLCh(double L, double C, double h) implements Color {
     @Override
     public LuvLCh LuvLCh() {

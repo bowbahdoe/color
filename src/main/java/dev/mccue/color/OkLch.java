@@ -1,5 +1,6 @@
 package dev.mccue.color;
 
+/// The OkLch color space.
 public record OkLch(
         double L,
         double c,

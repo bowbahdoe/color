@@ -1,5 +1,8 @@
 package dev.mccue.color;
 
+/// The CIELUV color space.
+///
+/// @see <a href="https://en.wikipedia.org/wiki/CIELUV">https://en.wikipedia.org/wiki/CIELUV</a>
 public record Luv(
         double L,
         double u,

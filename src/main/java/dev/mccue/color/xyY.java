@@ -2,6 +2,7 @@ package dev.mccue.color;
 
 
 // http://www.brucelindbloom.com/Eqn_XYZ_to_xyY.html
+/// The CIE xyY color system.
 public record xyY(
         double x,
         double y,

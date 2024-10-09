@@ -1,5 +1,8 @@
 package dev.mccue.color;
 
+/// The HSL color space.
+///
+/// @see <a href="http://en.wikipedia.org/wiki/HSL_and_HSV>http://en.wikipedia.org/wiki/HSL_and_HSV</a>
 public record HSL(double H, double S, double L) implements Color {
     public HSL(
             /// Hue

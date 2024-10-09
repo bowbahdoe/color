@@ -308,19 +308,19 @@ public class ColorTest {
 
     @ParameterizedTest
     @MethodSource("vals")
-    public void testHclCreation(Val tt) {
+    public void testLabLChCreation(Val tt) {
         assertTrue(tt.labLCh.sRGB().almostEqualRGB(tt.c));
-        assertTrue(sRGB.HCL(tt.labLCh50, ReferenceWhite.D50).almostEqualRGB(tt.c));
+        assertTrue(sRGB.LabLCh(tt.labLCh50, ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
     @MethodSource("vals")
-    public void testHclConversion(Val tt) {
-        var HCL = tt.c.HCL();
+    public void testLabLChConversion(Val tt) {
+        var HCL = tt.c.LabLCh();
         assertTrue(almosteq(HCL.h(), tt.labLCh.h()));
         assertTrue(almosteq(HCL.C(), tt.labLCh.C()));
         assertTrue(almosteq(HCL.L(), tt.labLCh.L()));
-        HCL = tt.c.HCL(ReferenceWhite.D50);
+        HCL = tt.c.LabLCh(ReferenceWhite.D50);
         assertTrue(almosteq(HCL.h(), tt.labLCh50.h()));
         assertTrue(almosteq(HCL.C(), tt.labLCh50.C()));
         assertTrue(almosteq(HCL.L(), tt.labLCh50.L()));

@@ -1,5 +1,8 @@
 package dev.mccue.color;
 
+/// The CIE-Lab color space.
+///
+/// @see <a href="https://en.wikipedia.org/wiki/CIELAB_color_space">https://en.wikipedia.org/wiki/CIELAB_color_space</a>
 public record Lab(
         double L,
         double a,
@@ -32,7 +35,7 @@ public record Lab(
         return v * v;
     }
 
-    public LabLCh HCL() {
+    public LabLCh LabLCh() {
         double h;
         double c;
         double l;

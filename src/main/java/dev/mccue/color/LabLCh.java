@@ -1,13 +1,23 @@
 package dev.mccue.color;
 
+/// The CIE-Lab ({@link Lab}) color space in cylindrical coordinates.
 public record LabLCh(
         double L,
         double C,
         double h
 ) implements Color {
+    public LabLCh(
+            double L,
+            double C,
+            double h
+    ) {
+        this.L = L;
+        this.C = C;
+        this.h = h % 360;
+    }
 
     @Override
-    public LabLCh HCL() {
+    public LabLCh LabLCh() {
         return this;
     }
 

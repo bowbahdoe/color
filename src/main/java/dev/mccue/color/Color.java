@@ -114,8 +114,8 @@ public interface Color {
     /// color space.
     ///
     /// @return This color in the {@link LabLCh} color space.
-    default LabLCh HCL() {
-        return sRGB().HCL();
+    default LabLCh LabLCh() {
+        return sRGB().LabLCh();
     }
 
     /// Convert this color to the {@link LabLCh}
@@ -123,8 +123,8 @@ public interface Color {
     ///
     /// @param referenceWhite The reference white to use.
     /// @return This color in the {@link LabLCh} color space.
-    default LabLCh HCL(ReferenceWhite referenceWhite) {
-        return sRGB().HCL(referenceWhite);
+    default LabLCh LabLCh(ReferenceWhite referenceWhite) {
+        return sRGB().LabLCh(referenceWhite);
     }
 
     /// Convert this color to the {@link RGB255}
@@ -713,9 +713,9 @@ public interface Color {
     default Color blendHCL(Color col2, double t) {
         var col1 = this;
 
-        switch (col1.HCL()) {
+        switch (col1.LabLCh()) {
             case LabLCh(var l1, var c1, var h1) -> {
-                switch (col2.HCL()) {
+                switch (col2.LabLCh()) {
                     case LabLCh(var l2, var c2, var h2) -> {
                         // https://github.com/lucasb-eyer/go-colorful/pull/60
                         if (c1 <= 0.00015 && c2 >= 0.00015) {
@@ -1025,7 +1025,7 @@ public interface Color {
     public static List<Color> warm(int colorsCount, RandomGenerator random) {
         LabPredicate warmy = (lab) -> {
             var l = lab.L();
-            var c = lab.HCL().C();
+            var c = lab.LabLCh().C();
             return 0.1 <= c && c <= 0.4 && 0.2 <= l && l <= 0.5;
         };
         var settings = new PaletteGenerationSettings();
@@ -1042,7 +1042,7 @@ public interface Color {
     public static List<Color> happy(int colorsCount, RandomGenerator random) {
         LabPredicate pimpy = (lab) -> {
             var l = lab.L();
-            var c = lab.HCL().C();
+            var c = lab.LabLCh().C();
             return 0.3 <= c && 0.4 <= l && l <= 0.8;
         };
         var settings = new PaletteGenerationSettings();

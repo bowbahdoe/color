@@ -1,6 +1,6 @@
 package dev.mccue.color;
 
-/// Components of a color in the OkLab color space.
+/// The OkLab color space.
 ///
 /// @see <a href="https://bottosson.github.io/posts/oklab/">https://bottosson.github.io/posts/oklab/</a>
 public record OkLab(

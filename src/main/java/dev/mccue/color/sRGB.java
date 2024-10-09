@@ -1,5 +1,6 @@
 package dev.mccue.color;
 
+/// The sRGB (standard RGB) color system.
 public record sRGB(
         double R,
         double G,
@@ -100,29 +101,29 @@ public record sRGB(
     // H values are in [0..360], C and L values are in [0..1]
     // WARNING: many combinations of `h`, `c`, and `l` values do not have corresponding
     // valid RGB values, check the FAQ in the README if you're unsure.
-    public static sRGB HCL(LabLCh labLCh) {
-        return HCL(labLCh, ReferenceWhite.D65);
+    public static sRGB LabLCh(LabLCh labLCh) {
+        return LabLCh(labLCh, ReferenceWhite.D65);
     }
 
     // Generates a color by using data given in HCL space, taking
     // into account a given reference white. (i.e. the monitor's white)
     // H values are in [0..360], C and L values are in [0..1]
-    public static sRGB HCL(LabLCh labLCh, ReferenceWhite referenceWhite) {
+    public static sRGB LabLCh(LabLCh labLCh, ReferenceWhite referenceWhite) {
         return labLCh.Lab().XYZ(referenceWhite).sRGB();
     }
 
     // Converts the given color to HCL space using D65 as reference white.
     // H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
-    public LabLCh HCL() {
-        return HCL(ReferenceWhite.D65);
+    public LabLCh LabLCh() {
+        return LabLCh(ReferenceWhite.D65);
     }
 
     // Converts the given color to HCL space, taking into account
     // a given reference white. (i.e. the monitor's white)
     // H values are in [0..360], C and L values are in [0..1]
-    public LabLCh HCL(ReferenceWhite referenceWhite) {
+    public LabLCh LabLCh(ReferenceWhite referenceWhite) {
         var c = this;
-        return c.Lab(referenceWhite).HCL();
+        return c.Lab(referenceWhite).LabLCh();
     }
 
     // Converts the given color to CIE L*u*v* space using D65 as reference white.
