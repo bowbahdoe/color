@@ -9,7 +9,7 @@ by [Lucas Beyer](https://github.com/lucasb-eyer).
 <dependency>
     <groupId>dev.mccue</groupId>
     <artifactId>color</artifactId>
-    <version>2024.10.09.1</version>
+    <version>2024.10.09.2</version>
 </dependency>
 ```
 
@@ -18,9 +18,8 @@ by [Lucas Beyer](https://github.com/lucasb-eyer).
 I am still working through this and working toward actually understanding
 colors, color spaces, etc.
 
-As such I might revisit some design choices without mercy. Notably the `HCL`
-type might have a bad name and the auto-clamping behavior on some color space
-component records like `sRGB` might be a bad call.
+As such I might revisit some design choices without mercy. Notably I need to zero in
+on where and when is best to auto-clamp values in the different color implementations.
 
 Keep that in mind if you want to use it for anything. You can always reach out
 to me directly to make sure some particular piece of API surface is stable.
