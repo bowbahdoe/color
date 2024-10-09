@@ -9,9 +9,9 @@ public record HSL(double H, double S, double L) implements Color {
             /// Lightness
             double L
     ) {
-        this.H = Math.clamp(H, 0, 360);
-        this.S = Math.clamp(S, 0, 1);
-        this.L = Math.clamp(L, 0, 1);
+        this.H = H % 360;
+        this.S = S;
+        this.L = L;
     }
 
     @Override

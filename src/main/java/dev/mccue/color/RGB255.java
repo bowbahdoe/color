@@ -23,6 +23,14 @@ public final class RGB255 implements Color {
         this.B = (byte) Math.clamp(B, 0, 255);
     }
 
+    public RGB255(
+            byte R,
+            byte G,
+            byte B
+    ) {
+        this(Byte.toUnsignedInt(R), Byte.toUnsignedInt(G), Byte.toUnsignedInt(B));
+    }
+
     public int R() {
         return Byte.toUnsignedInt(R);
     }

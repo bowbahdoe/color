@@ -105,16 +105,76 @@ public interface Color {
         return OkLab().OkLch();
     }
 
-    static sRGB sRGB(double R, double G, double B) {
-        return new sRGB(R, G, B);
+    static HCL HCL(double H, double C, double L) {
+        return new HCL(H, C, L);
+    }
+
+    static HPLuv HPLuv(double L, double u, double v) {
+        return new HPLuv(L, u, v);
+    }
+
+    static HSL HSL(double H, double S, double L) {
+        return new HSL(H, S, L);
+    }
+
+    static HSLuv HSLuv(double H, double S, double L) {
+        return new HSLuv(H, S, L);
+    }
+
+    static HSV HSV(double H, double S, double V) {
+        return new HSV(H, S, V);
     }
 
     static Lab Lab(double L, double a, double b) {
         return new Lab(L, a, b);
     }
 
+    static LinearRGB LinearRGB(double R, double G, double B) {
+        return new LinearRGB(R, G, B);
+    }
+
+    static Luv Luv(double L, double u, double v) {
+        return new Luv(L, u, v);
+    }
+
+    static LuvLCh LuvLCh(double L, double c, double h) {
+        return new LuvLCh(L, c, h);
+    }
+
+    static OkLab OkLab(double L, double a, double b) {
+        return new OkLab(L, a, b);
+    }
+
+    static OkLch OkLch(double L, double c, double h) {
+        return new OkLch(L, c, h);
+    }
+
+    static RGB255 RGB255(int value) {
+        return new RGB255(value);
+    }
+
+    static RGB255 RGB255(int R, int G, int B) {
+        return new RGB255(R, G, B);
+    }
+
+    static RGB255 RGB255(byte R, byte G, byte B) {
+        return new RGB255(R, G, B);
+    }
+
     static RGB255 hex(String hex) {
         return RGB255.hex(hex);
+    }
+
+    static sRGB sRGB(double R, double G, double B) {
+        return new sRGB(R, G, B);
+    }
+
+    static xyY xyY(double x, double y, double Y) {
+        return new xyY(x, y, Y);
+    }
+
+    static XYZ XYZ(double X, double Y, double Z) {
+        return new XYZ(X, Y, Z);
     }
 
     /// Computes the distance between two colors in RGB space.
