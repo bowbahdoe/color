@@ -2,8 +2,8 @@ package dev.mccue.color;
 
 import static dev.mccue.color.Util.sq;
 
-// http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/
-// http://www.brucelindbloom.com/Eqn_RGB_to_XYZ.html
+/// @see <a href="https://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/">https://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/</a>
+/// @see <a href="http://www.brucelindbloom.com/Eqn_RGB_to_XYZ.html">https://www.brucelindbloom.com/Eqn_RGB_to_XYZ.html</a>
 public record LinearRGB(
         double R,
         double G,

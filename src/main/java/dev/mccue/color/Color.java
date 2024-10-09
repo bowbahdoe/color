@@ -9,6 +9,13 @@ import static dev.mccue.color.Util.interp_angle;
 
 /// A Color.
 ///
+/// Colors aren't a physical phenomena, they are a perceptual one.
+///
+/// Most light sources (except something exotic like
+/// sodium lamps) don't output light in just one wavelength. They have
+/// what we call a
+///
+///
 /// This interface defines conversions to different color spaces.
 /// At a minimum a color must be convertible to {@link sRGB}.
 ///
@@ -23,84 +30,172 @@ import static dev.mccue.color.Util.interp_angle;
 /// - Thread-Safe
 /// - Value Classes (ideally)
 public interface Color {
+    /// Convert this color to the {@link sRGB}
+    /// color space.
+    ///
+    /// @return This color in the {@link sRGB} color space.
     sRGB sRGB();
 
+    /// Convert this color to the {@link LinearRGB}
+    /// color space.
+    ///
+    /// @return This color in the {@link LinearRGB} color space.
     default LinearRGB LinearRGB() {
         return sRGB().LinearRGB();
     }
 
+    /// Convert this color to the {@link Lab}
+    /// color space.
+    ///
+    /// @return This color in the {@link Lab} color space.
     default Lab Lab() {
         return sRGB().Lab();
     }
 
+    /// Convert this color to the {@link Lab}
+    /// color space.
+    ///
+    /// @param referenceWhite The reference white to use.
+    /// @return This color in the {@link Lab} color space.
     default Lab Lab(ReferenceWhite referenceWhite) {
         return sRGB().Lab(referenceWhite);
     }
 
+    /// Convert this color to the {@link HSLuv}
+    /// color space.
+    ///
+    /// @return This color in the {@link HSLuv} color space.
     default HSLuv HSLuv() {
         return sRGB().HSLuv();
     }
 
+    /// Convert this color to the {@link Luv}
+    /// color space.
+    ///
+    /// @return This color in the {@link Luv} color space.
     default Luv Luv() {
         return sRGB().Luv();
     }
 
+    /// Convert this color to the {@link Luv}
+    /// color space.
+    ///
+    /// @param referenceWhite The reference white to use.
+    /// @return This color in the {@link Luv} color space.
     default Luv Luv(ReferenceWhite referenceWhite) {
         return sRGB().Luv(referenceWhite);
     }
 
+    /// Convert this color to the {@link HPLuv}
+    /// color space.
+    ///
+    /// @return This color in the {@link HPLuv} color space.
     default HPLuv HPLuv() {
         return sRGB().HPLuv();
     }
 
+    /// Convert this color to the {@link LuvLCh}
+    /// color space.
+    ///
+    /// @return This color in the {@link LuvLCh} color space.
     default LuvLCh LuvLCh() {
         return sRGB().LuvLCh();
     }
 
+    /// Convert this color to the {@link HSV}
+    /// color space.
+    ///
+    /// @return This color in the {@link HSV} color space.
     default HSV HSV() {
         return sRGB().HSV();
     }
 
+    /// Convert this color to the {@link HCL}
+    /// color space.
+    ///
+    /// @return This color in the {@link HCL} color space.
     default HCL HCL() {
         return sRGB().HCL();
     }
 
+    /// Convert this color to the {@link HCL}
+    /// color space.
+    ///
+    /// @param referenceWhite The reference white to use.
+    /// @return This color in the {@link HCL} color space.
     default HCL HCL(ReferenceWhite referenceWhite) {
         return sRGB().HCL(referenceWhite);
     }
 
+    /// Convert this color to the {@link RGB255}
+    /// color space.
+    ///
+    /// @return This color in the {@link RGB255} color space.
     default RGB255 RGB255() {
         return sRGB().RGB255();
     }
 
+    /// Convert this color to the {@link HSL}
+    /// color space.
+    ///
+    /// @return This color in the {@link HSL} color space.
     default HSL HSL() {
         return sRGB().HSL();
     }
 
+    /// Convert this color to a hex string starting with a `#`.
+    ///
+    /// @return This color as a hex string.
     default String hex() {
         return RGB255().hex();
     }
 
+    /// Convert this color to the {@link xyY}
+    /// color space.
+    ///
+    /// @return This color in the {@link xyY} color space.
     default xyY xyY() {
         return sRGB().xyY();
     }
 
+    /// Convert this color to the {@link xyY}
+    /// color space.
+    ///
+    /// @param referenceWhite The reference white to use.
+    /// @return This color in the {@link xyY} color space.
     default xyY xyY(ReferenceWhite referenceWhite) {
         return sRGB().xyY(referenceWhite);
     }
 
+    /// Convert this color to the {@link XYZ}
+    /// color space.
+    ///
+    /// @return This color in the {@link XYZ} color space.
     default XYZ XYZ() {
         return sRGB().XYZ();
     }
 
-    default XYZ XYZ(ReferenceWhite wref) {
-        return sRGB().XYZ(wref);
+    /// Convert this color to the {@link XYZ}
+    /// color space.
+    ///
+    /// @param referenceWhite The reference white to use.
+    /// @return This color in the {@link XYZ} color space.
+    default XYZ XYZ(ReferenceWhite referenceWhite) {
+        return sRGB().XYZ(referenceWhite);
     }
 
+    /// Convert this color to the {@link OkLab}
+    /// color space.
+    ///
+    /// @return This color in the {@link OkLab} color space.
     default OkLab OkLab() {
         return XYZ().OkLab();
     }
 
+    /// Convert this color to the {@link OkLch}
+    /// color space.
+    ///
+    /// @return This color in the {@link OkLch} color space.
     default OkLch OkLch() {
         return OkLab().OkLch();
     }
