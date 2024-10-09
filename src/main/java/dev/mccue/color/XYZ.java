@@ -5,8 +5,19 @@ public record XYZ(
         double X,
         double Y,
         double Z
-) {
+) implements Color {
+    @Override
+    public XYZ XYZ() {
+        return this;
+    }
+
+    @Override
+    public sRGB sRGB() {
+        return this.LinearRGB().sRGB();
+    }
+
     // XyzToLinearRGB converts from CIE XYZ-space to Linear RGB space.
+    @Override
     public LinearRGB LinearRGB() {
         var r = 3.2409699419045214* X - 1.5373831775700935* Y - 0.49861076029300328* Z;
         var g = -0.96924363628087983* X + 1.8759675015077207* Y + 0.041555057407175613* Z;
@@ -14,6 +25,7 @@ public record XYZ(
         return new LinearRGB(r, g, b);
     }
 
+    @Override
     public Lab Lab() {
         // Use D65 white as reference point by default.
         // http://www.fredmiranda.com/forum/topic/1035332
@@ -28,6 +40,7 @@ public record XYZ(
         return t/3.0*29.0/6.0*29.0/6.0 + 4.0/29.0;
     }
 
+    @Override
     public Lab Lab(ReferenceWhite wref) {
         var fy = lab_f(Y / wref._1);
         var l = 1.16*fy - 0.16;
@@ -37,6 +50,7 @@ public record XYZ(
         return new Lab(l, a, b);
     }
 
+    @Override
     public Luv Luv() {
         return Luv(ReferenceWhite.D65);
     }
@@ -56,6 +70,7 @@ public record XYZ(
         }
     }
 
+    @Override
     public Luv Luv(ReferenceWhite wref) {
         double l;
         double u;
@@ -78,6 +93,7 @@ public record XYZ(
         }
     }
 
+    @Override
     public OkLab OkLab() {
         var l_ = Math.cbrt(0.8189330101*X + 0.3618667424*Y - 0.1288597137*Z);
         var m_ = Math.cbrt(0.0329845436*X + 0.9293118715*Y + 0.0361456387*Z);
@@ -88,14 +104,17 @@ public record XYZ(
         return new OkLab(l, a, b);
     }
 
+    @Override
     public OkLch OkLch() {
         return OkLab().OkLch();
     }
 
+    @Override
     public xyY xyY() {
         return xyY(ReferenceWhite.D65);
     }
 
+    @Override
     public xyY xyY(ReferenceWhite wref) {
         double x;
         double y;

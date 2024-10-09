@@ -124,7 +124,7 @@ public class ColorTest {
     @MethodSource("vals")
     public void testHsvCreation(Val val) {
         assertTrue(
-                Color.HSV(val.hsv).almostEqualRGB(val.c)
+                val.hsv.almostEqualRGB(val.c)
         );
     }
 
@@ -154,7 +154,7 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testHslCreation(Val tt) {
-        var c = Color.HSL(tt.hsl);
+        var c = tt.hsl;
         assertTrue(c.almostEqualRGB(tt.c));
     }
 
@@ -199,13 +199,14 @@ public class ColorTest {
                     var c = Color.sRGB(r / 255.0, g / 255.0, b / 255.0);
                     switch (c.LinearRGB()) {
                         case LinearRGB(var r_want, var g_want, var b_want) -> {
-                            switch (c.fastLinearRGB()) {
+                            switch (c.LinearRGB_fast()) {
                                 case LinearRGB(var r_appr, var g_appr, var b_appr) -> {
                                     var dr = Math.abs(r_want - r_appr);
                                     var dg = Math.abs(g_want - g_appr);
                                     var db = Math.abs(b_want - b_appr);
                                     assertTrue(
-                                            dr + dg + db <= eps
+                                            dr + dg + db <= eps,
+                                            (dr + dg + db) + " is not <= " + eps
                                     );
                                 }
                             }
@@ -213,13 +214,14 @@ public class ColorTest {
                     }
 
 
-                    var c_want = Color.LinearRGB(r / 255.0, g / 255.0, b / 255.0).sRGB();
-                    var c_appr = Color.fastLinearRGB(r / 255.0, g / 255.0, b / 255.0).sRGB();
+                    var c_want = new sRGB(r / 255.0, g / 255.0, b / 255.0).LinearRGB();
+                    var c_appr = new sRGB(r / 255.0, g / 255.0, b / 255.0).LinearRGB_fast();
                     var dr = Math.abs(c_want.R() - c_appr.R());
                     var dg = Math.abs(c_want.G() - c_appr.G());
                     var db = Math.abs(c_want.B() - c_appr.B());
                     assertTrue(
-                            dr + dg + db <= eps
+                            dr + dg + db <= eps,
+                            (dr + dg + db) + " is not <= " + eps
                     );
                 }
             }
@@ -229,7 +231,7 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testXyzCreation(Val tt) {
-        assertTrue(Color.XYZ(tt.xyz).almostEqualRGB(tt.c));
+        assertTrue(tt.xyz.almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -244,7 +246,7 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testXyyCreation(Val tt) {
-        assertTrue(Color.xyY(tt.xyY).almostEqualRGB(tt.c));
+        assertTrue(tt.xyY.almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -260,8 +262,8 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testLabCreation(Val tt) {
-        assertTrue(Color.Lab(tt.lab).almostEqualRGB(tt.c));
-        assertTrue(Color.Lab(tt.lab50, ReferenceWhite.D50).almostEqualRGB(tt.c));
+        assertTrue(tt.lab.almostEqualRGB(tt.c));
+        assertTrue(tt.lab50.sRGB(ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -283,8 +285,8 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testLuvCreation(Val tt) {
-        assertTrue(Color.Luv(tt.luv).almostEqualRGB(tt.c));
-        assertTrue(Color.Luv(tt.luv50, ReferenceWhite.D50).almostEqualRGB(tt.c));
+        assertTrue(tt.luv.almostEqualRGB(tt.c));
+        assertTrue(tt.luv50.sRGB(ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -306,8 +308,8 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testHclCreation(Val tt) {
-        assertTrue(Color.HCL(tt.hcl).almostEqualRGB(tt.c));
-        assertTrue(Color.HCL(tt.hcl50, ReferenceWhite.D50).almostEqualRGB(tt.c));
+        assertTrue(tt.hcl.sRGB().almostEqualRGB(tt.c));
+        assertTrue(sRGB.HCL(tt.hcl50, ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
@@ -342,7 +344,7 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("rgbLabs")
     public void testRGBToOkLab(RGBLab rgbLab) {
-        var lab = Color.LinearRGB(rgbLab.R, rgbLab.G, rgbLab.B).XYZ()
+        var lab = new sRGB(rgbLab.R, rgbLab.G, rgbLab.B).LinearRGB().XYZ()
                 .OkLab();
         assertTrue(almosteq(lab.L(), rgbLab.L));
         assertTrue(almosteq(lab.a(), rgbLab.a));

@@ -4,7 +4,13 @@ public record Luv(
         double L,
         double u,
         double v
-) {
+) implements Color {
+    @Override
+    public Luv Luv() {
+        return this;
+    }
+
+    @Override
     public XYZ XYZ() {
         return XYZ(ReferenceWhite.D65);
     }
@@ -25,7 +31,6 @@ public record Luv(
             );
         }
     }
-
 
     public XYZ XYZ(ReferenceWhite wref) {
         double x;
@@ -74,4 +79,28 @@ public record Luv(
 
         return new LuvLCh(l, c, h);
     }
+
+    // Generates a color by using data given in CIE L*u*v* space using D65 as reference white.
+    // L* is in [0..1] and both u* and v* are in about [-1..1]
+    // WARNING: many combinations of `l`, `u`, and `v` values do not have corresponding
+    // valid RGB values, check the FAQ in the README if you're unsure.
+    public sRGB sRGB() {
+        return this.XYZ().sRGB();
+    }
+
+    public sRGB sRGB(ReferenceWhite referenceWhite) {
+        return this.XYZ(referenceWhite).sRGB();
+    }
+
+    public double distance(Luv c2) {
+        var l1 = L;
+        var u1 = u;
+        var v1 = v;
+
+        var l2 = c2.L;
+        var u2 = c2.u;
+        var v2 = c2.v;
+        return Math.sqrt(sq(l1 - l2) + sq(u1 - u2) + sq(v1 - v2));
+    }
+
 }

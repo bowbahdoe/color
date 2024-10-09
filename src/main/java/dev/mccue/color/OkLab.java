@@ -10,8 +10,14 @@ public record OkLab(
         double a,
         /// How blue/yellow the color is
         double b
-) {
+) implements Color {
 
+    @Override
+    public OkLab OkLab() {
+        return this;
+    }
+
+    @Override
     public XYZ XYZ() {
         var l = L;
         var l_ = 0.9999999984505196*l + 0.39633779217376774*a + 0.2158037580607588*b;
@@ -29,6 +35,7 @@ public record OkLab(
         return new XYZ(x, y, z);
     }
 
+    @Override
     public OkLch OkLch() {
         var c = Math.sqrt((a * a) + (b * b));
         var h = Math.atan2(b, a);
@@ -37,5 +44,10 @@ public record OkLab(
         }
 
         return new OkLch(L, c, h * 180 / Math.PI);
+    }
+
+    @Override
+    public sRGB sRGB() {
+        return XYZ().sRGB();
     }
 }

@@ -6,7 +6,13 @@ public record xyY(
         double x,
         double y,
         double Y
-) {
+) implements Color {
+    @Override
+    public xyY xyY() {
+        return this;
+    }
+
+    @Override
     public XYZ XYZ() {
         double X;
         double Z;
@@ -20,4 +26,13 @@ public record xyY(
 
         return new XYZ(X, Y, Z);
     }
+
+    // Generates a color by using data given in CIE xyY space.
+    // x, y and Y are in [0..1]
+    @Override
+    public sRGB sRGB() {
+        return XYZ().sRGB();
+    }
+
+
 }
