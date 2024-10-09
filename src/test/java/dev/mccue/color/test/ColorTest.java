@@ -22,8 +22,8 @@ public class ColorTest {
             Lab lab50,
             Luv luv,
             Luv luv50,
-            HCL hcl,
-            HCL hcl50,
+            LabLCh labLCh,
+            LabLCh labLCh50,
             RGB255 rgb255
     ) {
         public Val(
@@ -52,8 +52,9 @@ public class ColorTest {
                     new Lab(lab50[0], lab50[1], lab50[2]),
                     new Luv(luv[0], luv[1], luv[2]),
                     new Luv(luv50[0], luv50[1], luv50[2]),
-                    new HCL(hcl[0], hcl[1], hcl[2]),
-                    new HCL(hcl50[0], hcl50[1], hcl50[2]),
+                    // Shenanigans from HCL -> LabLCh
+                    new LabLCh(hcl[2], hcl[1], hcl[0]),
+                    new LabLCh(hcl50[2], hcl50[1], hcl50[0]),
                     new RGB255(rgb255[0], rgb255[1], rgb255[2])
             );
         }
@@ -76,8 +77,8 @@ public class ColorTest {
                         new Lab(1.000000, -0.023881, -0.193622),
                         new Luv(1.00000, 0.00000, 0.00000),
                         new Luv(1.00000, -0.14716, -0.25658),
-                        new HCL(0.0000, 0.000000, 1.000000),
-                        new HCL(262.9688, 0.195089, 1.000000),
+                        new LabLCh(1, 0.000000, 0),
+                        new LabLCh(1, 0.195089, 262.9688),
                         new RGB255(255, 255, 255)
                 ),
                 new Val(
@@ -308,21 +309,21 @@ public class ColorTest {
     @ParameterizedTest
     @MethodSource("vals")
     public void testHclCreation(Val tt) {
-        assertTrue(tt.hcl.sRGB().almostEqualRGB(tt.c));
-        assertTrue(sRGB.HCL(tt.hcl50, ReferenceWhite.D50).almostEqualRGB(tt.c));
+        assertTrue(tt.labLCh.sRGB().almostEqualRGB(tt.c));
+        assertTrue(sRGB.HCL(tt.labLCh50, ReferenceWhite.D50).almostEqualRGB(tt.c));
     }
 
     @ParameterizedTest
     @MethodSource("vals")
     public void testHclConversion(Val tt) {
         var HCL = tt.c.HCL();
-        assertTrue(almosteq(HCL.H(), tt.hcl.H()));
-        assertTrue(almosteq(HCL.C(), tt.hcl.C()));
-        assertTrue(almosteq(HCL.L(), tt.hcl.L()));
+        assertTrue(almosteq(HCL.h(), tt.labLCh.h()));
+        assertTrue(almosteq(HCL.C(), tt.labLCh.C()));
+        assertTrue(almosteq(HCL.L(), tt.labLCh.L()));
         HCL = tt.c.HCL(ReferenceWhite.D50);
-        assertTrue(almosteq(HCL.H(), tt.hcl50.H()));
-        assertTrue(almosteq(HCL.C(), tt.hcl50.C()));
-        assertTrue(almosteq(HCL.L(), tt.hcl50.L()));
+        assertTrue(almosteq(HCL.h(), tt.labLCh50.h()));
+        assertTrue(almosteq(HCL.C(), tt.labLCh50.C()));
+        assertTrue(almosteq(HCL.L(), tt.labLCh50.L()));
     }
 
     public record RGBLab(double R, double G, double B, double L, double a, double b) {

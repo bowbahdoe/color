@@ -1,18 +1,19 @@
 package dev.mccue.color;
 
-public record HCL(
-        double H,
+public record LabLCh(
+        double L,
         double C,
-        double L
+        double h
 ) implements Color {
+
     @Override
-    public HCL HCL() {
+    public LabLCh HCL() {
         return this;
     }
 
     @Override
     public Lab Lab() {
-        var H = 0.01745329251994329576 * this.H; // Deg2Rad
+        var H = 0.01745329251994329576 * this.h; // Deg2Rad
         double a = C * Math.cos(H);
         double b = C * Math.sin(H);
         double L = this.L;

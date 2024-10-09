@@ -110,20 +110,20 @@ public interface Color {
         return sRGB().HSV();
     }
 
-    /// Convert this color to the {@link HCL}
+    /// Convert this color to the {@link LabLCh}
     /// color space.
     ///
-    /// @return This color in the {@link HCL} color space.
-    default HCL HCL() {
+    /// @return This color in the {@link LabLCh} color space.
+    default LabLCh HCL() {
         return sRGB().HCL();
     }
 
-    /// Convert this color to the {@link HCL}
+    /// Convert this color to the {@link LabLCh}
     /// color space.
     ///
     /// @param referenceWhite The reference white to use.
-    /// @return This color in the {@link HCL} color space.
-    default HCL HCL(ReferenceWhite referenceWhite) {
+    /// @return This color in the {@link LabLCh} color space.
+    default LabLCh HCL(ReferenceWhite referenceWhite) {
         return sRGB().HCL(referenceWhite);
     }
 
@@ -200,8 +200,8 @@ public interface Color {
         return OkLab().OkLch();
     }
 
-    static HCL HCL(double H, double C, double L) {
-        return new HCL(H, C, L);
+    static LabLCh LabLCh(double L, double C, double h) {
+        return new LabLCh(L, C, h);
     }
 
     static HPLuv HPLuv(double L, double u, double v) {
@@ -714,9 +714,9 @@ public interface Color {
         var col1 = this;
 
         switch (col1.HCL()) {
-            case HCL(var h1, var c1, var l1) -> {
+            case LabLCh(var l1, var c1, var h1) -> {
                 switch (col2.HCL()) {
-                    case HCL(var h2, var c2, var l2) -> {
+                    case LabLCh(var l2, var c2, var h2) -> {
                         // https://github.com/lucasb-eyer/go-colorful/pull/60
                         if (c1 <= 0.00015 && c2 >= 0.00015) {
                             h1 = h2;
@@ -725,7 +725,11 @@ public interface Color {
                         }
 
                         // We know that h are both in [0..360]
-                        return new HCL(interp_angle(h1, h2, t), c1 + t * (c2 - c1), l1 + t * (l2 - l1))
+                        return new LabLCh(
+                                l1 + t * (l2 - l1),
+                                c1 + t * (c2 - c1),
+                                interp_angle(h1, h2, t)
+                        )
                                 .sRGB()
                                 .clamped();
                     }
@@ -780,10 +784,10 @@ public interface Color {
     }
 
     private static Color randomWarm(RandomGenerator random) {
-        return new HCL(
-                random.nextDouble() * 360.0,
+        return new LabLCh(
                 0.1 + random.nextDouble() * 0.3,
-                0.2 + random.nextDouble() * 0.3
+                0.2 + random.nextDouble() * 0.3,
+                random.nextDouble() * 360.0
         );
     }
 
@@ -816,10 +820,10 @@ public interface Color {
     }
 
     private static Color randomPimp(RandomGenerator random) {
-        return new HCL(
-                random.nextDouble()*360.0,
+        return new LabLCh(
                 0.5+random.nextDouble()*0.3,
-                0.5+random.nextDouble()*0.3
+                0.5+random.nextDouble()*0.3,
+                random.nextDouble()*360.0
         );
     }
 

@@ -32,7 +32,7 @@ public record Lab(
         return v * v;
     }
 
-    public HCL HCL() {
+    public LabLCh HCL() {
         double h;
         double c;
         double l;
@@ -45,7 +45,7 @@ public record Lab(
         }
         c = Math.sqrt(sq(a) + sq(b));
         l = L;
-        return new HCL(h, c, l);
+        return new LabLCh(l, c, h);
     }
 
 

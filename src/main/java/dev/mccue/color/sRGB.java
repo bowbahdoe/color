@@ -100,27 +100,27 @@ public record sRGB(
     // H values are in [0..360], C and L values are in [0..1]
     // WARNING: many combinations of `h`, `c`, and `l` values do not have corresponding
     // valid RGB values, check the FAQ in the README if you're unsure.
-    public static sRGB HCL(HCL hcl) {
-        return HCL(hcl, ReferenceWhite.D65);
+    public static sRGB HCL(LabLCh labLCh) {
+        return HCL(labLCh, ReferenceWhite.D65);
     }
 
     // Generates a color by using data given in HCL space, taking
     // into account a given reference white. (i.e. the monitor's white)
     // H values are in [0..360], C and L values are in [0..1]
-    public static sRGB HCL(HCL hcl, ReferenceWhite referenceWhite) {
-        return hcl.Lab().XYZ(referenceWhite).sRGB();
+    public static sRGB HCL(LabLCh labLCh, ReferenceWhite referenceWhite) {
+        return labLCh.Lab().XYZ(referenceWhite).sRGB();
     }
 
     // Converts the given color to HCL space using D65 as reference white.
     // H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
-    public HCL HCL() {
+    public LabLCh HCL() {
         return HCL(ReferenceWhite.D65);
     }
 
     // Converts the given color to HCL space, taking into account
     // a given reference white. (i.e. the monitor's white)
     // H values are in [0..360], C and L values are in [0..1]
-    public HCL HCL(ReferenceWhite referenceWhite) {
+    public LabLCh HCL(ReferenceWhite referenceWhite) {
         var c = this;
         return c.Lab(referenceWhite).HCL();
     }
