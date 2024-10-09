@@ -9,7 +9,7 @@ by [Lucas Beyer](https://github.com/lucasb-eyer).
 <dependency>
     <groupId>dev.mccue</groupId>
     <artifactId>color</artifactId>
-    <version>2024.10.09</version>
+    <version>2024.10.09.1</version>
 </dependency>
 ```
 

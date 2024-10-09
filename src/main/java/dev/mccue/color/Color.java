@@ -467,7 +467,7 @@ public interface Color {
         return order;
     }
 
-    static List<Color> sort(List<Color> cs) {
+    static <C extends Color> List<C> sort(List<C> cs) {
         return sort(cs, Color::distanceCIEDE2000);
     }
 
@@ -774,7 +774,7 @@ public interface Color {
         return soft(colorsCount, ThreadLocalRandom.current());
     }
 
-    public static List<Color> soft(int colorsCount, RandomGenerator random) {
+    static List<Color> soft(int colorsCount, RandomGenerator random) {
         var settings = new PaletteGenerationSettings();
         settings.iterations = 50;
         settings.manySamples = false;
