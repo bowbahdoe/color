@@ -701,7 +701,7 @@ public interface Color {
 
     // BlendHcl blends two colors in the CIE-L*C*h° color-space, which should result in a smoother blend.
     // t == 0 results in c1, t == 1 results in c2
-    default Color blendHCL(Color col2, double t) {
+    default Color blendLuvLch(Color col2, double t) {
         var col1 = this;
 
         switch (col1.LabLCh()) {
@@ -729,8 +729,8 @@ public interface Color {
         }
     }
 
-    default Color blendHCL(Color col2) {
-        return blendHCL(col2, 0.5);
+    default Color blendLuvLch(Color col2) {
+        return blendLuvLch(col2, 0.5);
     }
 
     // BlendLuvLCh blends two colors in the cylindrical CIELUV color space.
